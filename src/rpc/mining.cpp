@@ -173,7 +173,7 @@ UniValue generate(const UniValue& params, bool fHelp)
             LOCK(cs_main);
             IncrementExtraNonce(pblock, chainActive.Tip(), nExtraNonce);
         }
-        while (!CheckProofOfWork(pblock->GetHash(), pblock->nBits, Params().GetConsensus())) {
+        while (!CheckProofOfWork(pblock->GetPOWHash(), pblock->nBits, Params().GetConsensus())) {
             // Yes, there is a chance every nonce could fail to satisfy the -regtest
             // target -- 1 in 2^(2^32). That ain't gonna happen.
             ++pblock->nNonce;
@@ -495,8 +495,10 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
     if(!g_connman)
         throw JSONRPCError(RPC_CLIENT_P2P_DISABLED, "Error: Peer-to-peer functionality missing or disabled");
 
-    if (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0)
-        throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "PEPEPOW Core is not connected!");
+    if (Params().MiningRequiresPeers()) {
+      if (g_connman->GetNodeCount(CConnman::CONNECTIONS_ALL) == 0)
+          throw JSONRPCError(RPC_CLIENT_NOT_CONNECTED, "PEPEPOW Core is not connected!");
+    }
 
     if (IsInitialBlockDownload())
         throw JSONRPCError(RPC_CLIENT_IN_INITIAL_DOWNLOAD, "PEPEPOW Core is downloading blocks...");
@@ -765,6 +767,10 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
 					    static const char* jijin3[] = {
                                                                 "PCwVHWuFMFDNGN86m86bkXhBwZoCNxbFvt",
                                                                     };
+					    static const char* jijin4[] = {
+                                                                "yS3Ep2qvaz31uxM7VGN1fabt6zFNd8XKUB",
+                                                                    };
+				   
 				   
      
      static const char* jijin2[] = {
@@ -781,15 +787,26 @@ UniValue getblocktemplate(const UniValue& params, bool fHelp)
         entry.push_back(Pair("amount", foundationPayment));
         foundationArray.push_back(entry);
      } else {
-        CBitcoinAddress addressF(jijin[pos]);
-        CScript FOUNDER_19_1_SCRIPT = GetScriptForDestination(addressF.Get());
-        CAmount foundationPayment = GetFoundationPayment(h,1);
-        UniValue entry(UniValue::VOBJ);
-        entry.push_back(Pair("payee", addressF.ToString().c_str()));
-        entry.push_back(Pair("script", HexStr(FOUNDER_19_1_SCRIPT.begin(), FOUNDER_19_1_SCRIPT.end())));
-        entry.push_back(Pair("amount", foundationPayment));
-        foundationArray.push_back(entry);
+        if(Params().NetworkIDString() == CBaseChainParams::TESTNET) {
+          CBitcoinAddress addressF(jijin4[pos]);
+          CScript FOUNDER_19_1_SCRIPT = GetScriptForDestination(addressF.Get());
+          CAmount foundationPayment = GetFoundationPayment(h,1);
+          UniValue entry(UniValue::VOBJ);
+          entry.push_back(Pair("payee", addressF.ToString().c_str()));
+          entry.push_back(Pair("script", HexStr(FOUNDER_19_1_SCRIPT.begin(), FOUNDER_19_1_SCRIPT.end())));
+          entry.push_back(Pair("amount", foundationPayment));
+          foundationArray.push_back(entry);
+        } else {
+          CBitcoinAddress addressF(jijin[pos]);
+          CScript FOUNDER_19_1_SCRIPT = GetScriptForDestination(addressF.Get());
+          CAmount foundationPayment = GetFoundationPayment(h,1);
+          UniValue entry(UniValue::VOBJ);
+          entry.push_back(Pair("payee", addressF.ToString().c_str()));
+          entry.push_back(Pair("script", HexStr(FOUNDER_19_1_SCRIPT.begin(), FOUNDER_19_1_SCRIPT.end())));
+          entry.push_back(Pair("amount", foundationPayment));
+          foundationArray.push_back(entry);
      }
+   }
 
 
      result.push_back(Pair("foundation", foundationArray));
