@@ -144,7 +144,9 @@ CBlockTemplate* CreateNewBlock(const CChainParams& chainparams, const CScript& s
                     // LogPrintf("nHeight at %d nVersion is %s\n", nHeight, pblock->nVersion);
 
         if(nHeight >= chainparams.GetConsensus().nNewHashHeight) {
-	       	pblock->nVersion |= 0x8000;
+		if (sporkManager.IsSporkActive(SPORK_16_XELISV2)) {
+	       	  pblock->nVersion |= 0x8000;
+		}
                     // LogPrintf("nHeight at %d so setting nVersion to %s\n", nHeight, pblock->nVersion);
 	}
 
