@@ -82,7 +82,8 @@ unsigned int static KimotoGravityWell(const CBlockIndex* pindexLast, const Conse
 
 unsigned int static DarkGravityWave(const CBlockIndex* pindexLast, const Consensus::Params& params) {
     /* current difficulty formula, PEPEPOW - DarkGravity v3, written by Evan Duffield - evan@PEPEPOW.org */
-    const arith_uint256 bnPowLimit = UintToArith256(params.powLimit);
+    arith_uint256 bnPowLimit = UintToArith256(params.powLimit);
+
     int64_t nPastBlocks = 24;
 
     // make sure we have at least (nPastBlocks + 1) blocks, otherwise just return powLimit
@@ -90,8 +91,13 @@ unsigned int static DarkGravityWave(const CBlockIndex* pindexLast, const Consens
         return bnPowLimit.GetCompact();
     }
 
-      if (pindexLast->nHeight > 129886 && pindexLast->nHeight < 130858) {
+    if (pindexLast->nHeight > 129886 && pindexLast->nHeight < 130858) {
         return bnPowLimit.GetCompact();
+    }
+
+    // change powLimit to use lower limit after xelisv2
+    if (pindexLast->nHeight + 1 >= params.nNewHashHeight) {
+        bnPowLimit = UintToArith256(params.powLimit2);
     }
 
 
