@@ -1309,7 +1309,7 @@ bool ReadBlockFromDisk(CBlock& block, const CDiskBlockPos& pos, const Consensus:
     }
 
     // Check the header
-    if (!CheckProofOfWork(block.GetPOWHash(), block.nBits, consensusParams))
+    if (!CheckProofOfWork(block.GetPOWHash(), block.nBits, consensusParams, block.nTime))
         return error("ReadBlockFromDisk: Errors in block header at %s", pos.ToString());
 
     return true;
@@ -2085,7 +2085,9 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     }
 
   
-    if(pindexPrev->nHeight >= params.nNewHashHeight - 1) {
+
+    // if(pindexPrev->nHeight > params.nNewHashHeight - 1) {
+    if(pindexPrev->nHeight + 1 >= params.nNewHashHeight) {
  	if (sporkManager.IsSporkActive(SPORK_16_XELISV2)) {
            nVersion |= 0x8000;
 	}
@@ -3304,7 +3306,7 @@ bool FindUndoPos(CValidationState &state, int nFile, CDiskBlockPos &pos, unsigne
 bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, bool fCheckPOW)
 {
     // Check proof of work matches claimed amount
-    if (fCheckPOW && !CheckProofOfWork(block.GetPOWHash(), block.nBits, Params().GetConsensus()))
+    if (fCheckPOW && !CheckProofOfWork(block.GetPOWHash(), block.nBits, Params().GetConsensus(), block.nTime))
         return state.DoS(50, error("CheckBlockHeader(): proof of work failed"),
                          REJECT_INVALID, "high-hash");
 
