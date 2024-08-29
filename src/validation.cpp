@@ -555,13 +555,13 @@ bool CheckFoundersInputs(const CTransaction &tx, CValidationState &state, int nH
 
 
     if(tx.vin[0].prevout.IsNull()){
-        LogPrintf("----------------CheckFoundersInputs:tx.GetHash=%s\n tx=%s\n", tx.GetHash().ToString(),tx.ToString());
+        // LogPrintf("----------------CheckFoundersInputs:tx.GetHash=%s\n tx=%s\n", tx.GetHash().ToString(),tx.ToString());
         CAmount res = GetBlockSubsidy(0,nHeight,Params().GetConsensus(), false);
       //   LogPrintf("-----------------fund count= %lld,height=%i\n", res *FOUNDATION_RATE/100/COIN,nHeight);
         //LogPrintf("block.vtx[0].GetValueOut() %lld <= blockReward %lld\n", block.vtx[0].GetValueOut(), blockReward);
     }
     if(!tx.vin[0].prevout.IsNull()) {
-        LogPrintf("----------------nHeight < FOUNDATION_HEIGHT + 10,----------------if2----------------%i---------------\n", nHeight);
+        // LogPrintf("----------------nHeight < FOUNDATION_HEIGHT + 10,----------------if2----------------%i---------------\n", nHeight);
         return true;
     }
     bool found_1 = false;
@@ -606,7 +606,7 @@ bool CheckFoundersInputs(const CTransaction &tx, CValidationState &state, int nH
     {
         if (output.scriptPubKey == FOUNDER_1_SCRIPT && output.nValue >= foundAmount) // Superblocks will be bigger
         {
-	     LogPrintf("FOUND CORRECT FOUNDATION PAYMENT at height=%i\n", nHeight+1);
+	     // LogPrintf("FOUND CORRECT FOUNDATION PAYMENT at height=%i\n", nHeight+1);
             found_1 = true;
 	    found_2 = true;
            // continue;
@@ -637,7 +637,7 @@ bool CheckFoundersInputs(const CTransaction &tx, CValidationState &state, int nH
         return state.DoS(100, false, REJECT_FOUNDER_REWARD_MISSING,"CTransaction::CheckTransaction() : founders reward missing");
 	     
     }
-    LogPrintf("----------------CheckFoundersInputs() : return true----------------\n");
+    // LogPrintf("----------------CheckFoundersInputs() : return true----------------\n");
     return true;
    
 }
