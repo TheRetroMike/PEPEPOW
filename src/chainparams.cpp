@@ -120,7 +120,8 @@ public:
     CMainParams() {
         strNetworkID = "main";
         consensus.nNewHashHeight = 1930000; // Friday 30th August 2024, evening time ish (Zulu Time)
-        consensus.nNewHashBits = 0x1e00ffff;
+        // consensus.nNewHashBits = 0x1e00ffff;
+         consensus.nNewHashBits = 0x1f00ffff;
         consensus.nSubsidyHalvingInterval = 210240; // Note: actual number of blocks per calendar year with DGW v3 is ~200700 (for example 449750 - 249050)
         consensus.nMasternodePaymentsStartBlock = 0; // not true, but it's ok as long as it's less then nMasternodePaymentsIncreaseBlock
         consensus.nMasternodePaymentsIncreaseBlock = 158000; // actual historical value
