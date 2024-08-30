@@ -205,32 +205,10 @@ inline void aes_single_round_no_intrinsics(uint8_t *state, const uint8_t *round_
 
 void static inline aes_single_round(uint8_t *block, const uint8_t *key)
 {
-#if defined(__aarch64__)
   aes_single_round_no_intrinsics(block, key);
-#endif
-
-#ifdef WIN32
-	  aes_single_round_no_intrinsics(block, key);
-#endif
-
-#ifdef __linux__
-#if defined(__AES__)
-#if defined(__x86_64__)
-	__m128i block_vec = _mm_loadu_si128((const __m128i *)block);
-	__m128i key_vec = _mm_loadu_si128((const __m128i *)key);
-
-	// Perform single AES encryption round
-	block_vec = _mm_aesenc_si128(block_vec, key_vec);
-
-	_mm_storeu_si128((__m128i *)block, block_vec);
-#endif
-#endif
-#endif
-
-
-
 }
-#if defined(__x86_64__)
+
+#if defined(USE_ASM)
 
 static inline uint64_t Divide128Div64To64(uint64_t high, uint64_t low, uint64_t divisor, uint64_t *remainder)
 {
@@ -253,7 +231,7 @@ static inline uint64_t XEL_ROTL(uint64_t x, uint32_t r)
 	asm("rolq %%cl, %0" : "+r"(x) : "c"(r));
 	return x;
 }
-#else
+#else // USE_ASM
 
 static inline uint64_t Divide128Div64To64(uint64_t high, uint64_t low, uint64_t divisor, uint64_t *remainder)
 {
@@ -670,8 +648,6 @@ void chacha_encrypt(uint8_t *key, uint8_t *nonce, uint8_t *in, uint8_t *out, siz
 //
 //
 
-
-
 #include "blake3.c"
 #include "blake3_dispatch.c"
 #include "blake3_portable.c"
@@ -735,11 +711,6 @@ uint256 CBlockHeader::GetHash() const
 
 std::string CBlock::ToString() const
 {
-    // LogPrintf("CBlockHeader::ToString\n");
-    // LogPrintf("CBlockHeader::nVersion %s\n",nVersion);
-    // LogPrintf("CBlockHeader::hashPrevBlock.ToString %s\n",hashPrevBlock.ToString());
-    // LogPrintf("CBlockHeader::GetHash.ToString %s\n",GetHash().ToString());
-    // LogPrintf("CBlockHeader::nVersion again %s\n",nVersion);
     std::stringstream s;
     s << strprintf("CBlock(hash=%s, ver=%d, hashPrevBlock=%s, hashMerkleRoot=%s, nTime=%u, nBits=%08x, nNonce=%u, vtx=%u)\n",
         GetHash().ToString(),
