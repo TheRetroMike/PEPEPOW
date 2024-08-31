@@ -208,7 +208,7 @@ void static inline aes_single_round(uint8_t *block, const uint8_t *key)
   aes_single_round_no_intrinsics(block, key);
 }
 
-#if defined(USE_ASM)
+#if defined(USE_ASM) && defined(x86_64)
 
 static inline uint64_t Divide128Div64To64(uint64_t high, uint64_t low, uint64_t divisor, uint64_t *remainder)
 {

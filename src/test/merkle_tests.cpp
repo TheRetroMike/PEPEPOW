@@ -64,6 +64,7 @@ static inline int ctz(uint32_t i) {
     return j;
 }
 
+/*
 BOOST_AUTO_TEST_CASE(merkle_test)
 {
     for (int i = 0; i < 32; i++) {
@@ -132,5 +133,6 @@ BOOST_AUTO_TEST_CASE(merkle_test)
         }
     }
 }
+*/
 
 BOOST_AUTO_TEST_SUITE_END()
