@@ -254,7 +254,6 @@ static inline uint64_t XEL_ROTL(uint64_t x, uint32_t r)
     r %= 64;  // Ensure r is within the range [0, 63] for a 64-bit rotate
     return (x << r) | (x >> (64 - r));
 }
-
 #endif
 
 #define COMBINE_UINT64(high, low) (((__uint128_t)(high) << 64) | (low))
@@ -389,17 +388,16 @@ static inline uint64_t case_15(uint64_t a, uint64_t b, uint64_t c, int r, uint64
 
 typedef uint64_t (*operation_func)(uint64_t, uint64_t, uint64_t, int, uint64_t, int, int);
 operation_func operations[] = {
-	    case_0, case_1, case_2, case_3, case_4, case_5, case_6, case_7,
-	        case_8, case_9, case_10, case_11, case_12, case_13, case_14, case_15,
-		    // Add other functions for cases 10-15
-		    };
-		    //
+case_0, case_1, case_2, case_3, case_4, case_5, case_6, case_7,
+case_8, case_9, case_10, case_11, case_12, case_13, case_14, case_15,
+};
 
+#define XEL_KEY "xelishash-pow-v2"
 //
 // void xel_stage_3(uint64_t *scratch_pad, workerData_xelis_v2 &worker)
 void xel_stage_3(uint64_t *scratch_pad)
 {
-    const uint8_t key[17] = "xelishash-pow-v2";
+    const uint8_t key[17] = XEL_KEY;
     uint8_t block[16] = {0};
 
     uint64_t *mem_buffer_a = scratch_pad;
@@ -481,7 +479,6 @@ void xel_stage_1(const uint8_t *input, size_t input_len, uint8_t scratch_pad[XEL
 }
 
 
-#define XEL_KEY "xelishash-pow-v2"
 #define XEL_BUFSIZE (XEL_MEMSIZE / 2)
 
 
@@ -493,7 +490,7 @@ static const uint32_t ConstState[4] = {1634760805, 857760878, 2036477234, 179728
 
 void ChaCha20SetNonce(uint8_t *state, const uint8_t *Nonce)
 {
-		memcpy(state + 36, Nonce, 12);
+    memcpy(state + 36, Nonce, 12);
 }
 
 
@@ -631,21 +628,18 @@ void ChaCha20EncryptBytes(uint8_t *state, uint8_t *In, uint8_t *Out, size_t Size
 
 void ChaCha20SetKey(uint8_t *state, const uint8_t *Key)
 {
-	memcpy(state, Key, 32);
+    memcpy(state, Key, 32);
 }
 
 void chacha_encrypt(uint8_t *key, uint8_t *nonce, uint8_t *in, uint8_t *out, size_t bytes, uint32_t rounds)
 {
-	uint8_t state[48] = {0};
-	ChaCha20SetKey(state, key);
-	ChaCha20SetNonce(state, nonce);
-	ChaCha20EncryptBytes(state, in, out, bytes, rounds);
+    uint8_t state[48] = {0};
+    ChaCha20SetKey(state, key);
+    ChaCha20SetNonce(state, nonce);
+    ChaCha20EncryptBytes(state, in, out, bytes, rounds);
 }
 
-
 // Blake3
-//
-//
 //
 
 #include "blake3.c"
