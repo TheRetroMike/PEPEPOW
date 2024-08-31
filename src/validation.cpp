@@ -2052,13 +2052,6 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
     LOCK(cs_main);
     int32_t nVersion = VERSIONBITS_TOP_BITS;
 
-    /* if(pindexPrev->nHeight) {
-    LogPrintf("ComputeBlockVersion pindexPrev nHeight %d vs %d\n", pindexPrev->nHeight, params.nNewHashHeight); 
-    }
-    */
-
-
-
     for (int i = 0; i < (int)Consensus::MAX_VERSION_BITS_DEPLOYMENTS; i++) {
         Consensus::DeploymentPos pos = Consensus::DeploymentPos(i);
         ThresholdState state = VersionBitsState(pindexPrev, params, pos, versionbitscache);
@@ -2084,19 +2077,15 @@ int32_t ComputeBlockVersion(const CBlockIndex* pindexPrev, const Consensus::Para
         }
     }
 
-  
-
     // if(pindexPrev->nHeight > params.nNewHashHeight - 1) {
     if(pindexPrev->nHeight + 1 >= params.nNewHashHeight) {
- 	if (sporkManager.IsSporkActive(SPORK_16_XELISV2)) {
-           nVersion |= 0x8000;
-	}
-       if(Params().NetworkIDString() == CBaseChainParams::TESTNET) {
-           nVersion |= 0x8000;
-        } 
-           // LogPrintf("ComputeBlockVersion: nHeight at %d so setting nVersion to %s\n", pindexPrev->nHeight, nVersion);
- } 
-    // LogPrintf("ComputeBlockVersion returns  %s \n", nVersion);
+        if (sporkManager.IsSporkActive(SPORK_16_XELISV2)) {
+            nVersion |= 0x8000;
+        }
+        if(Params().NetworkIDString() == CBaseChainParams::TESTNET) {
+            nVersion |= 0x8000;
+        }
+    }
     return nVersion;
 }
 
@@ -3321,7 +3310,6 @@ bool CheckBlockHeader(const CBlockHeader& block, CValidationState& state, bool f
 bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bool fCheckMerkleRoot)
 {
     // These are checks that are independent of context.
-    LogPrintf("------------CheckBlock(PEPEW): spork is off, skipping transaction locking checks\n");
     if (block.fChecked)
         return true;
 
@@ -3471,6 +3459,12 @@ bool ContextualCheckBlockHeader(const CBlockHeader& block, CValidationState& sta
         return state.Invalid(error("%s : rejected nVersion=3 block", __func__),
                              REJECT_OBSOLETE, "bad-version");
 
+    // Reject headers without 0x8000 in them after hardfork at 1930000
+    if (!(block.nVersion & 0x8000) && nHeight >= consensusParams.nNewHashHeight) {
+        return state.Invalid(error("%s : invalid-version at height %s version %s\n", __func__),
+                             REJECT_OBSOLETE, "invalid-version");
+    }
+
     return true;
 }
 
@@ -3560,9 +3554,6 @@ static bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state
             return state.DoS(10, error("%s: prev block not found", __func__), 0, "bad-prevblk");
         pindexPrev = (*mi).second;
 
-         if ((pindexPrev->nHeight + 1) > chainparams.GetConsensus().nNewHashHeight && !(block.nVersion & 0x8000)) {
-	    return error("BlockValidationResult::BLOCK_INVALID_HEADER invalid-version at height %s version %s\n", pindexPrev->nHeight, block.nVersion);
-        } 
         if (pindexPrev->nStatus & BLOCK_FAILED_MASK)
             return state.DoS(100, error("%s: prev block invalid", __func__), REJECT_INVALID, "bad-prevblk");
 
@@ -3689,7 +3680,7 @@ static bool IsSuperMajority(int minVersion, const CBlockIndex* pstart, unsigned 
 
 bool ProcessNewBlock(const CChainParams& chainparams, const CBlock* pblock, bool fForceProcessing, const CDiskBlockPos* dbp, bool *fNewBlock)
 {
-    LogPrintf("%s : STARTS\n", __func__);
+    // LogPrintf("%s : STARTS\n", __func__);
     {
         LOCK(cs_main);
 
@@ -3705,14 +3696,14 @@ bool ProcessNewBlock(const CChainParams& chainparams, const CBlock* pblock, bool
         }
     }
 
-    LogPrintf("%s : NotifyHeaderTip\n", __func__);
+    // LogPrintf("%s : NotifyHeaderTip\n", __func__);
     NotifyHeaderTip();
 
     CValidationState state; // Only used to report errors, not invalidity - ignore it
     if (!ActivateBestChain(state, chainparams, pblock))
         return error("%s: ActivateBestChain failed", __func__);
 
-    LogPrintf("%s : ACCEPTED\n", __func__);
+    // LogPrintf("%s : ACCEPTED\n", __func__);
     return true;
 }
 
