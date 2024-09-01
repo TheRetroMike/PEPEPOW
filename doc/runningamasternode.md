@@ -13,7 +13,7 @@ To download the latest wallet version (2.6.2.12) and unpack it from a ubuntu com
 mkdir pepew26212 &&
 sudo chmod +x -R pepew26212 &&
 cd pepew26212 &&
-wget -c https://github.com/MattF42/PePe-core/releases/download/v2.6.2.12/PEPEPOW-v2.6.2.12-06ed3bb-release-x86_64-linux-gnu.tgzz -O - | tar -xz &&
+wget -c https://github.com/MattF42/PePe-core/releases/download/v2.6.2.12/PEPEPOW-v2.6.2.12-b837f88-release-x86_64-linux-gnu.tgz -O - | tar -xz &&
 cd &&
 sudo chmod +x -R pepew26212 &&
 cd pepew26212
