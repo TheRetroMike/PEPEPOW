@@ -194,33 +194,8 @@ public:
         assert(consensus.hashGenesisBlock == uint256S("0x00000a308cc3b469703a3bc1aa55bc251a71c9287d7b413242592c0ab0a31f13"));
         assert(genesis.hashMerkleRoot == uint256S("0xe0028eb9648db56b1ac77cf090b99048a8007e2bb64b68f092c03c7f56a662c7"));
 
-        vSeeds.push_back(CDNSSeedData("101.37.28.146", "101.37.28.146"));
-        vSeeds.push_back(CDNSSeedData("109.205.212.243", "109.205.212.243"));
-        vSeeds.push_back(CDNSSeedData("121.36.243.160", "121.36.243.160"));
-        vSeeds.push_back(CDNSSeedData("132.145.29.145", "132.145.29.145"));
-        vSeeds.push_back(CDNSSeedData("141.147.71.107", "141.147.71.107"));
-        vSeeds.push_back(CDNSSeedData("141.98.90.157", "141.98.90.157"));
-        vSeeds.push_back(CDNSSeedData("172.104.5.209", "172.104.5.209"));
-        vSeeds.push_back(CDNSSeedData("181.45.56.1", "181.45.56.1"));
-        vSeeds.push_back(CDNSSeedData("182.43.92.100", "182.43.92.100"));
-        vSeeds.push_back(CDNSSeedData("186.12.200.15", "186.12.200.15"));
-        vSeeds.push_back(CDNSSeedData("192.46.215.125", "192.46.215.125"));
-        vSeeds.push_back(CDNSSeedData("5.188.238.193", "5.188.238.193"));
-        vSeeds.push_back(CDNSSeedData("5.9.151.50", "5.9.151.50"));
-        vSeeds.push_back(CDNSSeedData("51.161.131.90", "51.161.131.90"));
-        vSeeds.push_back(CDNSSeedData("54.39.49.96", "54.39.49.96"));
-        vSeeds.push_back(CDNSSeedData("173.249.12.11", "173.249.12.11"));
-        vSeeds.push_back(CDNSSeedData("207.180.227.207", "207.180.227.207"));
-        vSeeds.push_back(CDNSSeedData("167.86.91.2", "167.86.91.2"));
-        vSeeds.push_back(CDNSSeedData("167.86.87.54", "167.86.87.54"));
-        vSeeds.push_back(CDNSSeedData("167.86.85.148", "167.86.85.148"));
-        vSeeds.push_back(CDNSSeedData("167.86.124.240", "167.86.124.240"));
-        vSeeds.push_back(CDNSSeedData("18.215.33.154", "118.215.33.154"));
-        vSeeds.push_back(CDNSSeedData("193.122.107.175", "193.122.107.175"));
-        vSeeds.push_back(CDNSSeedData("23.239.15.91", "23.239.15.91"));
-        vSeeds.push_back(CDNSSeedData("132.145.54.241", "132.145.54.241"));
-        vSeeds.push_back(CDNSSeedData("2600:1f18:da7:7900:e0e:7371:c000:89", "2600:1f18:da7:7900:e0e:7371:c000:89"));
-        vSeeds.push_back(CDNSSeedData("2603:c020:c00c:ab7e:fb40:f9f6:8078:4aa8", "2603:c020:c00c:ab7e:fb40:f9f6:8078:4aa8"));
+        vSeeds.push_back(CDNSSeedData("dnsseed.pepepow.org", "dnsseed.pepepow.org"));
+        vSeeds.push_back(CDNSSeedData("dnsseed.pepepow.foztor.net", "dnsseed.pepepow.foztor.net"));
 
         // PEPEPOW addresses start with 'X'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,55);
