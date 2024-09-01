@@ -372,7 +372,9 @@ crypto_libbitcoin_crypto_a_SOURCES = \
   crypto/sph_panama.h \
   crypto/sph_types.h \
   crypto/sha512.cpp \
-  crypto/sha512.h
+  crypto/sha512.h \
+  crypto/xelisv2.cpp \
+  crypto/xelisv2.h
 
 if USE_ASM
 crypto_libbitcoin_crypto_a_SOURCES += crypto/sha256_sse4.cpp
@@ -588,7 +590,7 @@ endif
 #
 CLEANFILES = $(EXTRA_LIBRARIES)
 
-CLEANFILES = leveldb/libleveldb.a leveldb/libmemenv.a
+CLEANFILES += leveldb/libleveldb.a leveldb/libmemenv.a
 CLEANFILES += *.gcda *.gcno
 CLEANFILES += compat/*.gcda compat/*.gcno
 CLEANFILES += consensus/*.gcda consensus/*.gcno

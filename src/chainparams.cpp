@@ -168,10 +168,10 @@ public:
         consensus.vDeployments[Consensus::DEPLOYMENT_DIP0001].nThreshold = 3226; // 80% of 4032
 
         // The best chain should have at least this much work.
-        consensus.nMinimumChainWork = uint256S("0x00"); // 782700
+        consensus.nMinimumChainWork = uint256S("0x0000000000000000000000000000000000000000000000004c58a1f2d23fb643"); // 1920000
 
         // By default assume that the signatures in ancestors of this block are valid.
-        consensus.defaultAssumeValid = uint256S("0x00"); // 782700
+        consensus.defaultAssumeValid = uint256S("0x000000000018cef21f56b393e0fbb3c5b28c77f0a6134ea2c0424fc4fe937fdc"); // 1920000
 
         /**
          * The message start string is designed to be unlikely to occur in normal data.
@@ -221,8 +221,6 @@ public:
         vSeeds.push_back(CDNSSeedData("132.145.54.241", "132.145.54.241"));
         vSeeds.push_back(CDNSSeedData("2600:1f18:da7:7900:e0e:7371:c000:89", "2600:1f18:da7:7900:e0e:7371:c000:89"));
         vSeeds.push_back(CDNSSeedData("2603:c020:c00c:ab7e:fb40:f9f6:8078:4aa8", "2603:c020:c00c:ab7e:fb40:f9f6:8078:4aa8"));
-        
-        
 
         // PEPEPOW addresses start with 'X'
         base58Prefixes[PUBKEY_ADDRESS] = std::vector<unsigned char>(1,55);
@@ -252,11 +250,12 @@ public:
 
         checkpointData = (CCheckpointData) {
                 boost::assign::map_list_of
-                        ( 0, uint256S("0x00000a308cc3b469703a3bc1aa55bc251a71c9287d7b413242592c0ab0a31f13")),
-                1683850602, // * UNIX timestamp of last checkpoint block
-                0,    // * total number of transactions between genesis and last checkpoint
-                //   (the tx=... number in the SetBestChain debug.log lines)
-                0        // * estimated number of transactions per day after checkpoint
+                        ( 0, uint256S("0x00000a308cc3b469703a3bc1aa55bc251a71c9287d7b413242592c0ab0a31f13"))
+                  ( 1920000, uint256S("0x000000000018cef21f56b393e0fbb3c5b28c77f0a6134ea2c0424fc4fe937fdc")),
+                1724690273, // * UNIX timestamp of last checkpoint block
+                2522847,    // * total number of transactions between genesis and last checkpoint
+                            //   (the tx=... number in the SetBestChain debug.log lines)
+                3000        // * estimated number of transactions per day after checkpoint
         };
     }
 };
