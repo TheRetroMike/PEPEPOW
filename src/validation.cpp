@@ -3581,6 +3581,7 @@ static bool AcceptBlockHeader(const CBlockHeader& block, CValidationState& state
 // Exposed wrapper for AcceptBlockHeader
 bool ProcessNewBlockHeaders(const std::vector<CBlockHeader>& headers, CValidationState& state, const CChainParams& chainparams, CBlockIndex** ppindex)
 {
+    int k=0;
     {
         LOCK(cs_main);
         for (const CBlockHeader& header : headers) {
@@ -3592,9 +3593,13 @@ bool ProcessNewBlockHeaders(const std::vector<CBlockHeader>& headers, CValidatio
     NotifyHeaderTip();
     {
         LOCK(cs_main);
-        if (::ChainstateActive().IsInitialBlockDownload() && ppindex && *ppindex) {
-            LogPrintf("Synchronizing blockheaders, height: %d (~%.2f%%)\n", (*ppindex)->nHeight, 100.0/((*ppindex)->nHeight+(GetAdjustedTime() - (*ppindex)->GetBlockTime()) / Params().GetConsensus().nPowTargetSpacing) * (*ppindex)->nHeight);
-        }
+	if (IsInitialBlockDownload() && ppindex && *ppindex) {
+            k++;
+	    if(k > 5) {
+	        LogPrintf("Synchronizing blockheaders, height: %d (~%.2f%%)\n", (*ppindex)->nHeight, 100.0/((*ppindex)->nHeight+(GetAdjustedTime() - (*ppindex)->GetBlockTime()) / Params().GetConsensus().nPowTargetSpacing) * (*ppindex)->nHeight);
+		k=0;
+	    }
+	}
     }
     return true;
 }
