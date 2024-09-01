@@ -1,7 +1,7 @@
 // Xelis Additions Foztor July 24
+// Original Implementetaion by EhssanD from https://github.com/xelis-project/xelis-hash/blob/master/C/xelis_hash_v2.c
 //
-//
-//
+// Copyright unknown
 
 #include <crypto/common.h>
 #include <crypto/xelisv2.h>

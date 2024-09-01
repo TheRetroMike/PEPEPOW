@@ -1,9 +1,7 @@
-// replace license
+// Orginally from https://github.com/xelis-project/xelis-hash/blob/master/C/xelis_hash_v2.h
+// By EhssanD
 
-// Copyright (c) 2009-2010 Satoshi Nakamoto
-// Copyright (c) 2009-2015 The Bitcoin Core developers
-// Distributed under the MIT software license, see the accompanying
-// file COPYING or http://www.opensource.org/licenses/mit-license.php.
+// Copyright unknown
 
 #ifndef BITCOIN_CRYPTO_XELISV2_H
 #define BITCOIN_CRYPTO_XELISV2_H
