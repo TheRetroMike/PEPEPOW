@@ -5,6 +5,7 @@
 
 #include <crypto/common.h>
 #include <crypto/xelisv2.h>
+#include <malloc.h>
 
 #include <crypto/blake3.h>
 #ifdef __linux__
