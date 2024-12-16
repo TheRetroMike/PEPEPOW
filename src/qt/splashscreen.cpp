@@ -36,12 +36,12 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
     setWindowFlags(Qt::FramelessWindowHint);
 
     // set reference point, paddings
-    int paddingLeft             = 14;
-    int paddingTop              = 458;
-    int titleVersionVSpace      = 17;
-    int titleCopyrightVSpace    = 32;
+    int paddingLeft             = 25;
+    int paddingTop              = 440;
+    int titleVersionVSpace      = 40;
+    int titleCopyrightVSpace    = 50;
 
-    float fontFactor            = 1.0;
+    float fontFactor            = 1;
 
     // define text to place
     QString titleText       = tr("PEPEPOW Core");
@@ -63,7 +63,9 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
     pixmap = QPixmap(splashScreenPath);
 
     QPainter pixPaint(&pixmap);
-    pixPaint.setPen(QColor(100,100,100));
+    //pixPaint.setPen(QColor(100,100,100));
+    pixPaint.setPen(QColor(255,255,255)); // white color text
+
 
     // check font size and drawing with
     pixPaint.setFont(QFont(font, 28*fontFactor));
@@ -84,9 +86,9 @@ SplashScreen::SplashScreen(Qt::WindowFlags f, const NetworkStyle *networkStyle) 
 
     // draw copyright stuff
     pixPaint.setFont(QFont(font, 10*fontFactor));
-    pixPaint.drawText(paddingLeft,paddingTop+titleCopyrightVSpace,copyrightTextBtc);
-    pixPaint.drawText(paddingLeft,paddingTop+titleCopyrightVSpace+12,copyrightTextDash);
-    pixPaint.drawText(paddingLeft,paddingTop+titleCopyrightVSpace+24,copyrightTextPEPEPOW);
+    pixPaint.drawText(paddingLeft,paddingTop+titleCopyrightVSpace+15,copyrightTextBtc);
+    pixPaint.drawText(paddingLeft,paddingTop+titleCopyrightVSpace+15,copyrightTextDash);
+    pixPaint.drawText(paddingLeft,paddingTop+titleCopyrightVSpace+35,copyrightTextPEPEPOW);
 
     // draw additional text if special network
     if(!titleAddText.isEmpty()) {
@@ -143,7 +145,8 @@ static void InitMessage(SplashScreen *splash, const std::string &message)
         Qt::QueuedConnection,
         Q_ARG(QString, QString::fromStdString(message)),
         Q_ARG(int, Qt::AlignBottom|Qt::AlignHCenter),
-        Q_ARG(QColor, QColor(55,55,55)));
+        //Q_ARG(QColor, QColor(55,55,55))); 
+        Q_ARG(QColor, QColor(255,255,255))); // white color text
 }
 
 static void ShowProgress(SplashScreen *splash, const std::string &title, int nProgress)
@@ -203,10 +206,13 @@ void SplashScreen::showMessage(const QString &message, int alignment, const QCol
 void SplashScreen::paintEvent(QPaintEvent *event)
 {
     QPainter painter(this);
-    painter.drawPixmap(0, 0, pixmap);
-    QRect r = rect().adjusted(5, 5, -5, -5);
-    painter.setPen(curColor);
-    painter.drawText(r, curAlignment, curMessage);
+    painter.setPen(QColor(255, 255, 255)); // White frame
+    painter.drawPixmap(0, 0, pixmap); //draw background picture
+    painter.setBrush(QBrush(QColor(70, 0, 110, 30)));  // RGBA dark purple, 30 transparent
+    QRect textBackgroundRect = rect().adjusted(7, 7, -7, -7);
+    painter.drawRect(textBackgroundRect);  // draw rect
+    painter.setPen(curColor); //font color
+    painter.drawText(textBackgroundRect, curAlignment, curMessage); // print text
 }
 
 void SplashScreen::closeEvent(QCloseEvent *event)
