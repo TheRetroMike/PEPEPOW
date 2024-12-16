@@ -39,6 +39,7 @@
 #include "instantx.h"
 #include "masternodeman.h"
 #include "masternode-payments.h"
+#include "masternode-sync.h"
 #include "base58.h"
 #include <sstream>
 

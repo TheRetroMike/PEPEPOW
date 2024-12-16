@@ -698,7 +698,8 @@ DBErrors CWalletDB::LoadWallet(CWallet* pwallet)
                     fNoncriticalErrors = true; // ... but do warn the user there is something wrong.
                     if (strType == "tx")
                         // Rescan if there is a bad transaction record:
-                        SoftSetBoolArg("-rescan", true);
+                        LogPrintf("Would ask for a rescan, but not going to due to buggy founders payment check\n");
+                        // SoftSetBoolArg("-rescan", true);
                 }
             }
             if (!strErr.empty())
