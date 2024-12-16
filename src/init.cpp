@@ -1745,10 +1745,8 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
                 strErrors << _("Error loading wallet.dat: Wallet corrupted") << "\n";
             else if (nLoadWalletRet == DB_NONCRITICAL_ERROR)
             {
-		    /*
                 InitWarning(_("Error reading wallet.dat! All keys read correctly, but transaction data"
                              " or address book entries might be missing or incorrect."));
-			     */
             }
             else if (nLoadWalletRet == DB_TOO_NEW)
                 strErrors << _("Error loading wallet.dat: Wallet requires newer version of PEPEPOW Core") << "\n";
