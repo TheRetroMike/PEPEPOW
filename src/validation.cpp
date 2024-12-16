@@ -50,7 +50,7 @@
 #include <boost/math/distributions/poisson.hpp>
 #include <boost/thread.hpp>
 
-#include <crypto/xelisv2.h>
+#include <wallet/walletdb.h>
 
 using namespace std;
 
