@@ -19,7 +19,7 @@ To Build
 
 ```bash
 ./autogen.sh
-./configure
+./configure --enable-glibc-back-compat --enable-reduce-exports LDFLAGS=-static-libstdc++  CFLAGS="-march=native" CXXFLAGS="-march=native"
 make
 make install # optional
 ```
