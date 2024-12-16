@@ -30,6 +30,9 @@ Q_IMPORT_PLUGIN(qtwcodecs)
 Q_IMPORT_PLUGIN(qkrcodecs)
 #endif
 
+#include <crypto/xelisv2.h>
+	int HardwareAES = 0;
+
 // This is all you need to run all the tests
 int main(int argc, char *argv[])
 {

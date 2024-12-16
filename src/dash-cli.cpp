@@ -20,6 +20,8 @@
 #include <event2/keyvalq_struct.h>
 
 #include <univalue.h>
+#include <crypto/xelisv2.h>
+int HardwareAES = 0;
 
 using namespace std;
 

@@ -38,6 +38,9 @@
 #include "wallet/wallet.h"
 #endif
 
+#include <crypto/xelisv2.h>
+int HardwareAES = 0;
+
 #include <stdint.h>
 
 #include <boost/filesystem/operations.hpp>

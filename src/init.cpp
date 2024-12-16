@@ -84,9 +84,15 @@
 #include <boost/interprocess/sync/file_lock.hpp>
 #include <boost/thread.hpp>
 #include <openssl/crypto.h>
+#include <crypto/xelisv2.h>
 
 #if ENABLE_ZMQ
 #include "zmq/zmqnotificationinterface.h"
+#endif
+
+#if defined(__aarch64__)
+  #include <asm/hwcap.h>
+  #include <sys/auxv.h>
 #endif
 
 using namespace std;
@@ -1232,6 +1238,32 @@ bool AppInit2(boost::thread_group& threadGroup, CScheduler& scheduler)
     LogPrintf("Using the '%s' SHA256 implementation\n", sha256_algo);
     ECC_Start();
     globalVerifyHandle.reset(new ECCVerifyHandle());
+
+    // Check for hardware AES support
+#if defined(__aarch64__)
+    LogPrintf("We are on ARM\n");
+    long hwcaps= getauxval(AT_HWCAP);
+
+        if(hwcaps & HWCAP_AES){
+          LogPrintf("Using ARM hardware AES implementation\n");
+          HardwareAES = 1;
+        } else {
+        LogPrintf("Using ARM software AES implementation\n");
+          HardwareAES = 0;
+	}
+#else
+     __builtin_cpu_init ();
+    if (__builtin_cpu_supports("aes")) {
+        HardwareAES = 1;
+    }
+
+    if (HardwareAES == 1) {
+        LogPrintf("Using hardware AES implementation\n");
+    } else {
+        LogPrintf("Using software AES implementation\n");
+        // do_aes_no_instrinsics();
+    }
+#endif
 
     // Sanity check
     if (!InitSanityCheck())

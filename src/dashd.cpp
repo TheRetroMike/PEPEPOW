@@ -20,6 +20,8 @@
 #include <boost/thread.hpp>
 
 #include <stdio.h>
+#include <crypto/xelisv2.h>
+int HardwareAES = 0;
 
 /* Introduction text for doxygen: */
 

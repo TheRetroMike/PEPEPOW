@@ -366,7 +366,22 @@ inline void aes_single_round_no_intrinsics(uint8_t *state, const uint8_t *round_
 
 void static inline aes_single_round(uint8_t *block, const uint8_t *key)
 {
-  aes_single_round_no_intrinsics(block, key);
+  if (HardwareAES == 1) {
+          #if defined(__x86_64__)
+             __m128i block_m128i = _mm_load_si128((__m128i *)block);
+             __m128i key_m128i = _mm_load_si128((__m128i *)key);
+             __m128i result = _mm_aesenc_si128(block_m128i, key_m128i);
+             _mm_store_si128((__m128i *)block, result);
+           #elif defined(__aarch64__)
+             uint8x16_t blck = vld1q_u8(block);
+             uint8x16_t ky = vld1q_u8(key);
+             // This magic sauce is from here: https://blog.michaelbrase.com/2018/06/04/optimizing-x86-aes-intrinsics-on-armv8-a/
+             uint8x16_t rslt = vaesmcq_u8(vaeseq_u8(blck, (uint8x16_t){})) ^ ky;
+             vst1q_u8(block, rslt);
+           #endif
+  } else {
+          aes_single_round_no_intrinsics(block, key);
+  }
 }
 
 #if defined(USE_ASM) && defined(x86_64)
