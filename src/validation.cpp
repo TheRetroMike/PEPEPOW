@@ -632,9 +632,11 @@ bool CheckFoundersInputs(const CTransaction &tx, CValidationState &state, int nH
     }
     if (!found_1)
     {
+       if ( nHeight > 2378100 )  { // Skip over known bad blocks prior to this
 	  LogPrintf("ERROR: MISSING/INCORRECT FOUNDATION PAYMENT at height=%i\n", nHeight+1);
 //        LogPrint("mempool", "----------------CTransaction::CheckTransaction() : founders reward missing,%i---------------\n", nHeight);
-        return state.DoS(100, false, REJECT_FOUNDER_REWARD_MISSING,"CTransaction::CheckTransaction() : founders reward missing");
+          return state.DoS(100, false, REJECT_FOUNDER_REWARD_MISSING,"CTransaction::CheckTransaction() : founders reward missing");
+       }
 	     
     }
     // LogPrintf("----------------CheckFoundersInputs() : return true----------------\n");
