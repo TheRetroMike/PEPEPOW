@@ -50,6 +50,8 @@
 #include <boost/math/distributions/poisson.hpp>
 #include <boost/thread.hpp>
 
+#include <crypto/xelisv2.h>
+
 using namespace std;
 
 #if defined(NDEBUG)
@@ -553,6 +555,9 @@ bool CheckFoundersInputs(const CTransaction &tx, CValidationState &state, int nH
 		 return true;
 	        }
 
+	 if (WalletStartupScan) {
+		return true;
+	 }
         if (IsInitialBlockDownload())	 { // Do not check during initial sync
 		return true;
 	}

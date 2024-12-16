@@ -21,9 +21,12 @@
 #include <boost/scoped_ptr.hpp>
 #include <boost/thread.hpp>
 
+#include <crypto/xelisv2.h>
+
 using namespace std;
 
 static uint64_t nAccountingEntryNumber = 0;
+bool WalletStartupScan = false;
 
 //
 // CWalletDB
@@ -670,6 +673,7 @@ DBErrors CWalletDB::LoadWallet(CWallet* pwallet)
             return DB_CORRUPT;
         }
 
+	WalletStartupScan = true;
         while (true)
         {
             // Read next record
@@ -718,6 +722,7 @@ DBErrors CWalletDB::LoadWallet(CWallet* pwallet)
         result = DB_CORRUPT;
     }
 
+    WalletStartupScan = false;
     if (fNoncriticalErrors && result == DB_LOAD_OK)
         result = DB_NONCRITICAL_ERROR;
 

@@ -12,4 +12,5 @@ void xelis_hash_v2(const void* data, size_t len, uint8_t hashResult[32]);
 //void pre_xelis_hash_v2(const T1 pbegin, const T1 pend, uint8_t hash_result[32]);
 
 extern int HardwareAES;
+extern bool WalletStartupScan;
 #endif // BITCOIN_CRYPTO_XELISV2_H
