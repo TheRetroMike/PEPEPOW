@@ -552,10 +552,9 @@ bool CheckFoundersInputs(const CTransaction &tx, CValidationState &state, int nH
 		 return true;
 	        }
 
-	 if(!isSynced()) {
-		 return true;
-	 }
-	
+        if (IsInitialBlockDownload())	 { // Do not check during initial sync
+		return true;
+	}
 
 
     if(tx.vin[0].prevout.IsNull()){
