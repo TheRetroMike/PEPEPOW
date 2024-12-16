@@ -27,7 +27,7 @@ To build executables for Windows 64-bit:
     cd depends
     make HOST=x86_64-w64-mingw32 -j4
     cd ..
-    ./configure --prefix=`pwd`/depends/x86_64-w64-mingw32 --disable-shared
+    ./configure --prefix=`pwd`/depends/x86_64-w64-mingw32 --disable-shared CFLAGS="-march=native" CXXFLAGS="-march=native"
     make
 
 Windows32 bit binaries are assumed to not build cleanly, or indeed at all, and are not supported.
