@@ -722,14 +722,15 @@ DBErrors CWalletDB::LoadWallet(CWallet* pwallet)
         result = DB_CORRUPT;
     }
 
-    WalletStartupScan = false;
     if (fNoncriticalErrors && result == DB_LOAD_OK)
         result = DB_NONCRITICAL_ERROR;
 
     // Any wallet corruption at all: skip any rewriting or
     // upgrading, we don't want to make it worse.
-    if (result != DB_LOAD_OK)
+    if (result != DB_LOAD_OK) {
+        WalletStartupScan = false;
         return result;
+    }
 
     LogPrintf("nFileVersion = %d\n", wss.nFileVersion);
 
@@ -759,6 +760,7 @@ DBErrors CWalletDB::LoadWallet(CWallet* pwallet)
         pwallet->wtxOrdered.insert(make_pair(entry.nOrderPos, CWallet::TxPair((CWalletTx*)0, &entry)));
     }
 
+    WalletStartupScan = false;
     return result;
 }
 

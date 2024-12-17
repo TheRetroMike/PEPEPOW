@@ -259,7 +259,7 @@ To build executables for ARM64:
     cd depends
     make HOST=aarch64-linux-gnu NO_QT=1
     cd ..
-    ./configure --prefix=$PWD/depends/aarch64-linux-gnu --enable-glibc-back-compat --enable-reduce-exports LDFLAGS=-static-libstdc++  CFLAGS="-march=armv8-a+crypto" CXXFLAGS="-march=armv8-a+crypto"
+    ./configure --prefix=$PWD/depends/aarch64-linux-gnu --enable-glibc-back-compat --enable-reduce-exports LDFLAGS=-static-libstdc++  
     make
 
 
