@@ -524,6 +524,7 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
             return state.DoS(100, false, REJECT_INVALID, "bad-cb-length");
         // Get rid of FoundersFee Nonsense as of Protocol 30700 / Release 2.1
 	    // Re-introduced with SPORK15 Jan 24
+	/* This belongs in CheckBlock and Not here!!!
 	     if(Params().NetworkIDString() == CBaseChainParams::REGTEST) { // Always test Foundation input on Regtest networks
 		     if (!CheckFoundersInputs(tx, state, chainActive.Height())){
                      return false; } // Returning True is a bad idea (TM)
@@ -532,7 +533,7 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
                  if (!CheckFoundersInputs(tx, state, chainActive.Height())){
                 return false;
            } }
-         }
+         } */
 
 
 //        LogPrintf("------------CheckTransaction: begin CheckTransaction--end----------------\n");
@@ -555,9 +556,9 @@ bool CheckFoundersInputs(const CTransaction &tx, CValidationState &state, int nH
 		 return true;
 	        }
 
-	 if (WalletStartupScan) {
-		return true;
-	 }
+	 // if (WalletStartupScan) {
+		// return true;
+	 // }
         if (IsInitialBlockDownload())	 { // Do not check during initial sync
 		return true;
 	}
@@ -3370,7 +3371,23 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
         // Require other nodes to comply, send them some data in case they are missing it.
         BOOST_FOREACH(const CTransaction& tx, block.vtx) {
             // skip coinbase, it has no inputs
-            if (tx.IsCoinBase()) continue;
+            // if (tx.IsCoinBase()) continue;
+            if (tx.IsCoinBase() && WalletStartupScan === false) {
+	    /* Transplanted from CheckTransaction - Foztor Dec 24 */
+	       LogPrintf("WalletStartupScan is: %s", WalletStartupScan ? "true" : "false");
+               LogPrintf("CheckBlock(PEPEW): Checking Founders Inputs at height %d\n", chainActive.Height());
+	       if(Params().NetworkIDString() == CBaseChainParams::REGTEST) { // Always test Foundation input on Regtest networks
+		     if (!CheckFoundersInputs(tx, state, chainActive.Height())){
+                         return false; } // Returning True is a bad idea (TM)
+	       } else {
+	         if (sporkManager.IsSporkActive(SPORK_15_REQUIRE_FOUNDATION_FEE)) {
+                   if (!CheckFoundersInputs(tx, state, chainActive.Height())){
+                    LogPrintf("CheckBlock(PEPEW): BAD FOUNDERS INPUT\n");
+                    return false; }
+                 } 
+	       }
+               // LogPrintf("CheckBlock(PEPEW): all good\n");
+	    } // Coinbase Transaction
             // LOOK FOR TRANSACTION LOCK IN OUR MAP OF OUTPOINTS
             BOOST_FOREACH(const CTxIn& txin, tx.vin) {
                 uint256 hashLocked;

@@ -673,7 +673,7 @@ DBErrors CWalletDB::LoadWallet(CWallet* pwallet)
             return DB_CORRUPT;
         }
 
-	WalletStartupScan = true;
+	WalletStartupScan = true; // Do not check Founders Inputs whilst this happens
         while (true)
         {
             // Read next record
