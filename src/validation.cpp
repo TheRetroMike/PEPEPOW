@@ -3372,10 +3372,10 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
         BOOST_FOREACH(const CTransaction& tx, block.vtx) {
             // skip coinbase, it has no inputs
             // if (tx.IsCoinBase()) continue;
-	     LogPrintf("Check 1 WalletStartupScan is: %s", WalletStartupScan ? "true" : "false");
+	     // LogPrintf("Check 1 WalletStartupScan is: %s", WalletStartupScan ? "true" : "false");
             if (tx.IsCoinBase() && WalletStartupScan == false) {
 	    /* Transplanted from CheckTransaction - Foztor Dec 24 */
-	       LogPrintf("WalletStartupScan is: %s", WalletStartupScan ? "true" : "false");
+	       // LogPrintf("WalletStartupScan is: %s", WalletStartupScan ? "true" : "false");
                LogPrintf("CheckBlock(PEPEW): Checking Founders Inputs at height %d\n", chainActive.Height());
 	       if(Params().NetworkIDString() == CBaseChainParams::REGTEST) { // Always test Foundation input on Regtest networks
 		     if (!CheckFoundersInputs(tx, state, chainActive.Height())){
