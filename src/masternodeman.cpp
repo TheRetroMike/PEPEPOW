@@ -494,6 +494,7 @@ bool CMasternodeMan::GetNextMasternodeInQueueForPayment(bool fFilterSigTime, int
 
 bool CMasternodeMan::GetNextMasternodeInQueueForPayment(int nBlockHeight, bool fFilterSigTime, int& nCountRet, masternode_info_t& mnInfoRet)
 {
+    LogPrintf("CMasternodeMan::GetNextMasternodeInQueueForPayment starts\n");
     mnInfoRet = masternode_info_t();
     nCountRet = 0;
 
@@ -542,6 +543,7 @@ bool CMasternodeMan::GetNextMasternodeInQueueForPayment(int nBlockHeight, bool f
 
         vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock(), &mnpair.second));
     }
+    LogPrintf("CMasternodeMan::GetNextMasternodeInQueueForPayment 2\n");
 
     nCountRet = (int)vecMasternodeLastPaid.size();
 
@@ -557,6 +559,7 @@ bool CMasternodeMan::GetNextMasternodeInQueueForPayment(int nBlockHeight, bool f
         LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment -- ERROR: GetBlockHash() failed at nBlockHeight %d\n", nBlockHeight - 101);
         return false;
     }
+    LogPrintf("CMasternodeMan::GetNextMasternodeInQueueForPayment 3\n");
     // Look at 1/10 of the oldest nodes (by last payment), calculate their scores and pay the best one
     //  -- This doesn't look at who is being paid in the +8-10 blocks, allowing for double payments very rarely
     //  -- 1/100 payments should be a double payment on mainnet - (1/(3000/10))*2
@@ -566,7 +569,61 @@ bool CMasternodeMan::GetNextMasternodeInQueueForPayment(int nBlockHeight, bool f
     arith_uint256 nHighest = 0;
     CMasternode *pBestMasternode = NULL;
     BOOST_FOREACH (PAIRTYPE(int, CMasternode*)& s, vecMasternodeLastPaid){
+        LogPrintf("CMasternodeMan::GetNextMasternodeInQueueForPayment 4\n");
         arith_uint256 nScore = s.second->CalculateScore(blockHash);
+        masternode_info_t mnInfo;
+	mnInfo = s.second->GetInfo();
+	int nCollateralAmount = 0;
+        string strError;
+        std::string strOutpoint = CBitcoinAddress(mnInfo.pubKeyCollateralAddress.GetID()).ToString();
+
+	CMasternode::CollateralStatus err = CMasternode::GetCollateralAmount(mnInfo.vin.prevout, nCollateralAmount);
+        switch(err) {
+           case CMasternode::COLLATERAL_10M:
+                    strError = "10M Masternode found\n";
+                    break;
+           case CMasternode::COLLATERAL_50M:
+                    strError = "10M Masternode found\n";
+                    break;
+           case CMasternode::COLLATERAL_INVALID_AMOUNT:
+                    strError = "Masternode with INVALID Collateral amount found!\n";
+                    break;
+           case CMasternode::COLLATERAL_UTXO_NOT_FOUND:
+                    strError = "Masternode with MISSING COLLATERAL UTXO found!\n";
+                    break;
+           default:
+                    strError = "Unhandled GetCollateralAmount RETURN CODE!!\n";
+        }
+               
+        LogPrintf("CMasternodeMan::GetNextMasternodeInQueueForPayment MN %s - GetCollateralAmount %s\n", strOutpoint, strError);
+	/*
+        Coin coin;
+        CTransaction txCollateral;
+        uint256 nBlockHash;
+        if(GetTransaction(mnInfo.vin.prevout, txCollateral, Params().GetConsensus(), nBlockHash, true)) {
+        BOOST_FOREACH(CTxOut out, txCollateral.vout) {
+           LogPrintf("CMasternodeMan::GetNextMasternodeInQueueForPayment VALUE %d\n", out.nValue*COIN);
+           if(out.nValue != 10000000 * COIN && coin.out.nValue != 50000000 * COIN) {
+             LogPrintf("CMasternodeMan::GetNextMasternodeInQueueForPayment ERROR2\n");
+           } else {
+             nCollateralAmount = coin.out.nValue * COIN;
+           }
+        }
+      }
+/*
+        if(!GetUTXOCoin(mnInfo.vin, coin)) {
+         LogPrintf("CMasternodeMan::GetNextMasternodeInQueueForPayment ERROR1");
+        } else {
+ 
+        if(coin.out.nValue != 10000000 * COIN && coin.out.nValue != 50000000 * COIN) {
+           LogPrintf("CMasternodeMan::GetNextMasternodeInQueueForPayment ERROR2");
+        }
+
+        nCollateralAmount = coin.out.nValue * COIN;
+*/
+
+
+        LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment -- MN %s : nScore %s nBlockHeight %d nCollateralAmount %d\n",  CBitcoinAddress(mnInfo.pubKeyCollateralAddress.GetID()).ToString(), nScore.ToString().c_str(), nBlockHeight, nCollateralAmount);
         if(nScore > nHighest){
             nHighest = nScore;
             pBestMasternode = s.second;
@@ -577,6 +634,7 @@ bool CMasternodeMan::GetNextMasternodeInQueueForPayment(int nBlockHeight, bool f
     if (pBestMasternode) {
         mnInfoRet = pBestMasternode->GetInfo();
     }
+    LogPrintf("CMasternodeMan::GetNextMasternodeInQueueForPayment Last\n");
     return mnInfoRet.fInfoValid;
 }
 

@@ -107,6 +107,25 @@ CMasternode::CollateralStatus CMasternode::CheckCollateral(const COutPoint& outp
     return CheckCollateral(outpoint, nHeight);
 }
 
+CMasternode::CollateralStatus CMasternode::GetCollateralAmount(const COutPoint& outpoint, int& nAmountRet)
+{
+    AssertLockHeld(cs_main);
+
+    Coin coin;
+    if(!GetUTXOCoin(outpoint, coin)) {
+        return COLLATERAL_UTXO_NOT_FOUND;
+    }
+
+    if(coin.out.nValue == 10000000 * COIN ) {
+        return COLLATERAL_10M;
+    }
+    if(coin.out.nValue == 50000000 * COIN ) {
+        return COLLATERAL_50M;
+    }
+
+    return COLLATERAL_INVALID_AMOUNT;
+}
+
 CMasternode::CollateralStatus CMasternode::CheckCollateral(const COutPoint& outpoint, int& nHeightRet)
 {
     AssertLockHeld(cs_main);
@@ -116,7 +135,7 @@ CMasternode::CollateralStatus CMasternode::CheckCollateral(const COutPoint& outp
         return COLLATERAL_UTXO_NOT_FOUND;
     }
 
-    if(coin.out.nValue != 10000000 * COIN) {
+    if(coin.out.nValue != 10000000 * COIN && coin.out.nValue != 50000000 * COIN) {
         return COLLATERAL_INVALID_AMOUNT;
     }
 

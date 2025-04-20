@@ -149,7 +149,9 @@ public:
     enum CollateralStatus {
         COLLATERAL_OK,
         COLLATERAL_UTXO_NOT_FOUND,
-        COLLATERAL_INVALID_AMOUNT
+        COLLATERAL_INVALID_AMOUNT,
+	COLLATERAL_10M,
+	COLLATERAL_50M
     };
 
 
@@ -205,6 +207,7 @@ public:
 
     static CollateralStatus CheckCollateral(const COutPoint& outpoint);
     static CollateralStatus CheckCollateral(const COutPoint& outpoint, int& nHeightRet);
+    static CollateralStatus GetCollateralAmount(const COutPoint& outpoint, int& nAmountRet);
     void Check(bool fForce = false);
 
     bool IsBroadcastedWithin(int nSeconds) { return GetAdjustedTime() - sigTime < nSeconds; }

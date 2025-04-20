@@ -2387,7 +2387,12 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
                     if (CPrivateSend::IsCollateralAmount(pcoin->vout[i].nValue)) continue; // do not use collateral amounts
                     found = !CPrivateSend::IsDenominatedAmount(pcoin->vout[i].nValue);
                 } else if(nCoinType == ONLY_1000) {
-                    found = pcoin->vout[i].nValue == 10000000*COIN;
+		    bool found10 = false;
+		    bool found50 = false;
+                    found10 = pcoin->vout[i].nValue == 10000000*COIN;
+                    found50 = pcoin->vout[i].nValue == 50000000*COIN;
+		    if( found10 || found50 )
+			    found = true;
                 } else if(nCoinType == ONLY_PRIVATESEND_COLLATERAL) {
                     found = CPrivateSend::IsCollateralAmount(pcoin->vout[i].nValue);
                 } else {
