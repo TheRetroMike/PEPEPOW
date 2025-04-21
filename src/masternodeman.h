@@ -26,6 +26,7 @@ public:
 private:
     static const std::string SERIALIZATION_VERSION_STRING;
     static const int64_t  FIVE_DAY;
+    static const int64_t  ONE_HOUR;
 
     static const int DSEG_UPDATE_SECONDS        = 3 * 60 * 60;
 
