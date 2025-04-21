@@ -606,8 +606,8 @@ bool CMasternodeMan::GetNextMasternodeInQueueForPayment(int nBlockHeight, bool f
         }
                
         LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment -- MN %s : Collateral: %s nScore %s nBlockHeight %d nAdjusted %s\n",  strCollateralAmount, CBitcoinAddress(mnInfo.pubKeyCollateralAddress.GetID()).ToString(), nScore.ToString().c_str(), nBlockHeight, nAdjusted.ToString().c_str());
-        if(nScore > nHighest){
-            nHighest = nScore;
+        if(nAdjusted > nHighest){
+            nHighest = nAdjusted;
             pBestMasternode = s.second;
         }
         nCountTenth++;
