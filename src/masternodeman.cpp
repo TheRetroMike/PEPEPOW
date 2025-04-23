@@ -548,7 +548,32 @@ bool CMasternodeMan::GetNextMasternodeInQueueForPayment(int nBlockHeight, bool f
         //make sure it has at least as many confirmations as there are masternodes
         if(GetUTXOConfirmations(mnpair.first) < nMnCount) continue;
 
-        vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock(), &mnpair.second));
+	// Now with PEPEW 2.7 we must weight the lastPaidBlock against the Collateral Level
+        masternode_info_t mnInfo;
+	mnInfo = mnpair.second.GetInfo();
+	// masternode_info_t mnInfo;
+	        // mnInfo = s.second->GetInfo();
+	int nCollateralAmount = 0;
+	CMasternode::CollateralStatus err = CMasternode::GetCollateralAmount(mnInfo.vin.prevout, nCollateralAmount);
+        switch(err) {
+           case CMasternode::COLLATERAL_10M:
+       		    LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment MN %s is 10M so %d -> %d\n",  mnpair.second.addr.ToString(), mnpair.second.GetLastPaidBlock(), mnpair.second.GetLastPaidBlock()/5);
+                    vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock() / 5, &mnpair.second));
+                    break;
+           case CMasternode::COLLATERAL_50M:
+       		    LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment MN %s is 50M so %d remains\n",  mnpair.second.addr.ToString(), mnpair.second.GetLastPaidBlock());
+                    vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock(), &mnpair.second));
+                    break;
+           case CMasternode::COLLATERAL_INVALID_AMOUNT:
+                    LogPrintf("Masternode with INVALID Collateral amount found!\n");
+                    break;
+           case CMasternode::COLLATERAL_UTXO_NOT_FOUND:
+                    LogPrintf("Masternode with missig UTXO FOUND !\n");
+                    break;
+           default:
+                    LogPrintf("Unhandled GetCollateralAmount RETURN CODE!!\n");
+        }
+        // vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock(), &mnpair.second));
     }
 
     nCountRet = (int)vecMasternodeLastPaid.size();
@@ -570,44 +595,17 @@ bool CMasternodeMan::GetNextMasternodeInQueueForPayment(int nBlockHeight, bool f
     //  -- 1/100 payments should be a double payment on mainnet - (1/(3000/10))*2
     //  -- (chance per block * chances before IsScheduled will fire)
     int nTenthNetwork = nMnCount/10;
+    if(Params().NetworkIDString() == CBaseChainParams::TESTNET) {
+	    nTenthNetwork = nMnCount/2;
+    }
     int nCountTenth = 0;
     arith_uint256 nHighest = 0;
     arith_uint256 nAdjusted = 0;
     CMasternode *pBestMasternode = NULL;
     BOOST_FOREACH (PAIRTYPE(int, CMasternode*)& s, vecMasternodeLastPaid){
         arith_uint256 nScore = s.second->CalculateScore(blockHash);
-        masternode_info_t mnInfo;
-	mnInfo = s.second->GetInfo();
-	int nCollateralAmount = 0;
-        string strError;
-	string strCollateralAmount;
-        std::string strOutpoint = CBitcoinAddress(mnInfo.pubKeyCollateralAddress.GetID()).ToString();
-
-	CMasternode::CollateralStatus err = CMasternode::GetCollateralAmount(mnInfo.vin.prevout, nCollateralAmount);
-        switch(err) {
-           case CMasternode::COLLATERAL_10M:
-                    strError = "10M Masternode found\n";
-		    nAdjusted = nScore / 10;
-		    strCollateralAmount = "10M";
-                    break;
-           case CMasternode::COLLATERAL_50M:
-                    strError = "50M Masternode found\n";
-		    strCollateralAmount = "10M";
-		    nAdjusted = nScore;
-                    break;
-           case CMasternode::COLLATERAL_INVALID_AMOUNT:
-                    strError = "Masternode with INVALID Collateral amount found!\n";
-                    break;
-           case CMasternode::COLLATERAL_UTXO_NOT_FOUND:
-                    strError = "Masternode with MISSING COLLATERAL UTXO found!\n";
-                    break;
-           default:
-                    strError = "Unhandled GetCollateralAmount RETURN CODE!!\n";
-        }
-               
-        LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment -- MN %s : Collateral: %s nScore %s nBlockHeight %d nAdjusted %s\n",  strCollateralAmount, CBitcoinAddress(mnInfo.pubKeyCollateralAddress.GetID()).ToString(), nScore.ToString().c_str(), nBlockHeight, nAdjusted.ToString().c_str());
-        if(nAdjusted > nHighest){
-            nHighest = nAdjusted;
+        if(nScore > nHighest){
+            nHighest = nScore;
             pBestMasternode = s.second;
         }
         nCountTenth++;

@@ -562,6 +562,7 @@ bool CMasternodeBroadcast::CheckOutpoint(int& nDos)
         return false;
     }
 
+    LogPrintf("CheckOutpoint -- %s nBlockLast Paid %d nCollateralValue %d\n", vin.prevout.ToStringShort(), nBlockLastPaid, nCollateralValue);
     if (!CheckSignature(nDos)) {
         LogPrintf("CMasternodeBroadcast::CheckOutpoint -- CheckSignature() failed, masternode=%s\n", vin.prevout.ToStringShort());
         return false;
@@ -588,6 +589,17 @@ bool CMasternodeBroadcast::CheckOutpoint(int& nDos)
             return false;
         }
 
+        if (err == COLLATERAL_10M) {
+            LogPrintf("CMasternodeBroadcast::CheckOutpoint -- setting amount to 10M for masternode=%s\n", vin.prevout.ToStringShort());
+	    nCollateralValue = 10000000 * COIN;
+        }
+
+        if (err == COLLATERAL_50M) {
+            LogPrintf("CMasternodeBroadcast::CheckOutpoint -- setting amount to 50M for masternode=%s\n", vin.prevout.ToStringShort());
+	    nCollateralValue = 50000000 * COIN;
+        }
+
+        LogPrintf("CMasternodeBroadcast::CheckOutpoint collateral is %d  for masternode=%s\n", nCollateralValue, vin.prevout.ToStringShort());
         if(chainActive.Height() - nHeight + 1 < Params().GetConsensus().nMasternodeMinimumConfirmations) {
             LogPrintf("CMasternodeBroadcast::CheckOutpoint -- Masternode UTXO must have at least %d confirmations, masternode=%s\n",
                     Params().GetConsensus().nMasternodeMinimumConfirmations, vin.prevout.ToStringShort());
