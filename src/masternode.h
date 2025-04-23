@@ -115,6 +115,7 @@ struct masternode_info_t
     CService addr{};
     CPubKey pubKeyCollateralAddress{};
     CPubKey pubKeyMasternode{};
+    CAmount nCollateralValue{};
     int64_t nTimeLastWatchdogVote = 0;
 
     int64_t nLastDsq = 0; //the dsq count from the last dsq broadcast of this node
@@ -160,6 +161,7 @@ public:
 
     uint256 nCollateralMinConfBlockHash{};
     int nBlockLastPaid{};
+    CAmount nCollateralValue{};
     int nPoSeBanScore{};
     int nPoSeBanHeight{};
     bool fAllowMixingTx{};
@@ -192,6 +194,7 @@ public:
         READWRITE(nActiveState);
         READWRITE(nCollateralMinConfBlockHash);
         READWRITE(nBlockLastPaid);
+        READWRITE(nCollateralValue);
         READWRITE(nProtocolVersion);
         READWRITE(nPoSeBanScore);
         READWRITE(nPoSeBanHeight);
@@ -271,6 +274,7 @@ public:
     std::string GetStatus() const;
 
     int GetLastPaidTime() { return nTimeLastPaid; }
+    int GetCollateralAmount() { return nCollateralValue; }
     int GetLastPaidBlock() { return nBlockLastPaid; }
     void UpdateLastPaid(const CBlockIndex *pindex, int nMaxBlocksToScanBack);
 
@@ -290,6 +294,7 @@ public:
         vchSig = from.vchSig;
         nCollateralMinConfBlockHash = from.nCollateralMinConfBlockHash;
         nBlockLastPaid = from.nBlockLastPaid;
+        nCollateralValue = from.nCollateralValue;
         nPoSeBanScore = from.nPoSeBanScore;
         nPoSeBanHeight = from.nPoSeBanHeight;
         fAllowMixingTx = from.fAllowMixingTx;
