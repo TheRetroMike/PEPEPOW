@@ -273,9 +273,10 @@ bool CMasternode::IsInputAssociatedWithPubkey()
     CTransaction tx;
     uint256 hash;
     if(GetTransaction(vin.prevout.hash, tx, Params().GetConsensus(), hash, true)) {
-        BOOST_FOREACH(CTxOut out, tx.vout)
+        BOOST_FOREACH(CTxOut out, tx.vout) {
             if(out.nValue == 10000000*COIN && out.scriptPubKey == payee) return true;
             if(out.nValue == 50000000*COIN && out.scriptPubKey == payee) return true;
+	}
     }
 
     return false;
