@@ -550,33 +550,36 @@ bool CMasternodeMan::GetNextMasternodeInQueueForPayment(int nBlockHeight, bool f
         if(GetUTXOConfirmations(mnpair.first) < nMnCount) continue;
 
 	// Now with PEPEW 2.7 we must weight the lastPaidBlock against the Collateral Level
-        masternode_info_t mnInfo;
-	mnInfo = mnpair.second.GetInfo();
-	// masternode_info_t mnInfo;
-	        // mnInfo = s.second->GetInfo();
-	int nCollateralAmount = 0;
-	CMasternode::CollateralStatus err = CMasternode::GetCollateralAmount(mnInfo.vin.prevout, nCollateralAmount);
-        switch(err) {
-           case CMasternode::COLLATERAL_10M:
-       		    LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment MN %s is 10M so with %d MNs %d -> %d\n",  mnpair.second.addr.ToString(), nMnEnabledCount, mnpair.second.GetLastPaidBlock(), mnpair.second.GetLastPaidBlock() + (nMnEnabledCount * 5));
-                    vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock() + (nMnEnabledCount * 5), &mnpair.second));
-                    break;
-           case CMasternode::COLLATERAL_50M:
-       		    LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment MN %s is 50M so %d remains\n",  mnpair.second.addr.ToString(), mnpair.second.GetLastPaidBlock());
-                    vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock(), &mnpair.second));
-                    break;
-           case CMasternode::COLLATERAL_INVALID_AMOUNT:
-                    LogPrintf("Masternode with INVALID Collateral amount found!\n");
-                    break;
-           case CMasternode::COLLATERAL_UTXO_NOT_FOUND:
-                    LogPrintf("Masternode with missig UTXO FOUND !\n");
-                    break;
-           default:
-                    LogPrintf("Unhandled GetCollateralAmount RETURN CODE!!\n");
-        }
-        // vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock(), &mnpair.second));
+	if (sporkManager.IsSporkActive(SPORK_17_TIERED_MN)) {
+          masternode_info_t mnInfo;
+	  mnInfo = mnpair.second.GetInfo();
+	  // masternode_info_t mnInfo;
+	          // mnInfo = s.second->GetInfo();
+	  int nCollateralAmount = 0;
+	  CMasternode::CollateralStatus err = CMasternode::GetCollateralAmount(mnInfo.vin.prevout, nCollateralAmount);
+          switch(err) {
+             case CMasternode::COLLATERAL_10M:
+       		      LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment MN %s is 10M so with %d MNs %d -> %d\n",  mnpair.second.addr.ToString(), nMnEnabledCount, mnpair.second.GetLastPaidBlock(), mnpair.second.GetLastPaidBlock() + (nMnEnabledCount * 5));
+                      vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock() + (nMnEnabledCount * 5), &mnpair.second));
+                      break;
+             case CMasternode::COLLATERAL_50M:
+       		      LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment MN %s is 50M so %d remains\n",  mnpair.second.addr.ToString(), mnpair.second.GetLastPaidBlock());
+                      vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock(), &mnpair.second));
+                      break;
+             case CMasternode::COLLATERAL_INVALID_AMOUNT:
+                      LogPrintf("Masternode with INVALID Collateral amount found!\n");
+                      break;
+             case CMasternode::COLLATERAL_UTXO_NOT_FOUND:
+                      LogPrintf("Masternode with missig UTXO FOUND !\n");
+                      break;
+             default:
+                      LogPrintf("Unhandled GetCollateralAmount RETURN CODE!!\n");
+          }
+      } else {
+          LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment %s has LPB of %d\n",  mnpair.second.addr.ToString(), mnpair.second.GetLastPaidBlock());
+          vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock(), &mnpair.second));
+      }
     }
-
     nCountRet = (int)vecMasternodeLastPaid.size();
 
     //when the network is in the process of upgrading, don't penalize nodes that recently restarted

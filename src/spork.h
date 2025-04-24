@@ -30,6 +30,7 @@ static const int SPORK_13_OLD_SUPERBLOCK_FLAG                           = 10012;
 static const int SPORK_14_REQUIRE_SENTINEL_FLAG                         = 10013;
 static const int SPORK_15_REQUIRE_FOUNDATION_FEE                        = 10014;
 static const int SPORK_16_XELISV2		                        = 10015;
+static const int SPORK_17_TIERED_MN		                        = 10016;
 
 static const int64_t SPORK_2_INSTANTSEND_ENABLED_DEFAULT                = 0;            // ON
 static const int64_t SPORK_3_INSTANTSEND_BLOCK_FILTERING_DEFAULT        = 0;            // ON
@@ -42,6 +43,7 @@ static const int64_t SPORK_13_OLD_SUPERBLOCK_FLAG_DEFAULT               = 407090
 static const int64_t SPORK_14_REQUIRE_SENTINEL_FLAG_DEFAULT             = 4070908800ULL;// OFF
 static const int64_t SPORK_15_REQUIRE_FOUNDATION_FEE_DEFAULT            = 1706814000ULL;// 1st Feb 2024 19:00 UTC
 static const int64_t SPORK_16_XELISV2_DEFAULT 			        = 1724905600ULL;// Thursday, 29 August 2024 04:26:40
+static const int64_t SPORK_17_TIERED_MN_DEFAULT 		        = 1724905600ULL;// Thursday, 29 August 2024 04:26:40
 
 extern std::map<uint256, CSporkMessage> mapSporks;
 extern CSporkManager sporkManager;
