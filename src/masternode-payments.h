@@ -16,8 +16,13 @@ class CMasternodePayments;
 class CMasternodePaymentVote;
 class CMasternodeBlockPayees;
 
-static const int MNPAYMENTS_SIGNATURES_REQUIRED         = 6;
-static const int MNPAYMENTS_SIGNATURES_TOTAL            = 10;
+// static const int MNPAYMENTS_SIGNATURES_REQUIRED         = 6;
+// static const int MNPAYMENTS_SIGNATURES_TOTAL            = 10;
+static const int MNPAYMENTS_SIGNATURES_REQUIRED         = 11;
+static const int MNPAYMENTS_SIGNATURES_TOTAL            = 20;
+static const int MNPAYMENTS_SIGNATURES_REQUIRED_TESTNET         = 2;
+static const int MNPAYMENTS_SIGNATURES_TOTAL_TESTNET            = 3;
+
 /*
 if(Params().NetworkIDString() == CBaseChainParams::REGTEST) {
         static const char* jijin[] = {

@@ -119,8 +119,14 @@ CMasternode::CollateralStatus CMasternode::GetCollateralAmount(const COutPoint& 
     if(coin.out.nValue == 10000000 * COIN ) {
         return COLLATERAL_10M;
     }
+    if(coin.out.nValue == 25000000 * COIN ) {
+        return COLLATERAL_25M;
+    }
     if(coin.out.nValue == 50000000 * COIN ) {
         return COLLATERAL_50M;
+    }
+    if(coin.out.nValue == 100000000 * COIN ) {
+        return COLLATERAL_100M;
     }
 
     return COLLATERAL_INVALID_AMOUNT;
@@ -135,7 +141,7 @@ CMasternode::CollateralStatus CMasternode::CheckCollateral(const COutPoint& outp
         return COLLATERAL_UTXO_NOT_FOUND;
     }
 
-    if(coin.out.nValue != 10000000 * COIN && coin.out.nValue != 50000000 * COIN) {
+    if(coin.out.nValue != 10000000 * COIN &&  coin.out.nValue != 25000000 * COIN &&  coin.out.nValue != 50000000 * COIN && coin.out.nValue != 100000000 * COIN) {
         return COLLATERAL_INVALID_AMOUNT;
     }
 
@@ -275,7 +281,9 @@ bool CMasternode::IsInputAssociatedWithPubkey()
     if(GetTransaction(vin.prevout.hash, tx, Params().GetConsensus(), hash, true)) {
         BOOST_FOREACH(CTxOut out, tx.vout) {
             if(out.nValue == 10000000*COIN && out.scriptPubKey == payee) return true;
+            if(out.nValue == 25000000*COIN && out.scriptPubKey == payee) return true;
             if(out.nValue == 50000000*COIN && out.scriptPubKey == payee) return true;
+            if(out.nValue == 100000000*COIN && out.scriptPubKey == payee) return true;
 	}
     }
 
