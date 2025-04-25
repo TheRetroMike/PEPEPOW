@@ -2766,12 +2766,6 @@ extern UniValue consolidate(const UniValue& params, bool fHelp)
     CWalletTx wtx2;
     EnsureWalletIsUnlocked();
 
-    // string strError = pwalletMain->SendMoneyToDestination(address.Get(), nAmount, wtx2);
-    // if (strError != "")
-        // throw JSONRPCError(RPC_WALLET_ERROR, strError);
-
-    // pwalletMain->SendMoney(address.Get(), nAmount, false,  wtx2, false, false);
     SendMoney(address.Get(), nAmount, false, wtx2, false, false);
-    // SendMoney(address.Get(), nAmount, fSubtractFeeFromAmount, wtx, fUseInstantSend, fUsePrivateSend);
     return wtx2.GetHash().GetHex();
 }
