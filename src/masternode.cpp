@@ -602,9 +602,19 @@ bool CMasternodeBroadcast::CheckOutpoint(int& nDos)
 	    nCollateralValue = 10000000 * COIN;
         }
 
+        if (err == COLLATERAL_25M) {
+            LogPrintf("CMasternodeBroadcast::CheckOutpoint -- setting amount to 10M for masternode=%s\n", vin.prevout.ToStringShort());
+	    nCollateralValue = 25000000 * COIN;
+        }
+
         if (err == COLLATERAL_50M) {
             LogPrintf("CMasternodeBroadcast::CheckOutpoint -- setting amount to 50M for masternode=%s\n", vin.prevout.ToStringShort());
 	    nCollateralValue = 50000000 * COIN;
+        }
+
+        if (err == COLLATERAL_100M) {
+            LogPrintf("CMasternodeBroadcast::CheckOutpoint -- setting amount to 50M for masternode=%s\n", vin.prevout.ToStringShort());
+	    nCollateralValue = 100000000 * COIN;
         }
 
         LogPrintf("CMasternodeBroadcast::CheckOutpoint collateral is %d  for masternode=%s\n", nCollateralValue, vin.prevout.ToStringShort());
