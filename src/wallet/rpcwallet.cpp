@@ -2724,7 +2724,7 @@ extern UniValue consolidate(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 2 || params[1].get_int() > 200)
         throw runtime_error(
-            "consolidate \"smileycoinaddress\" N \n"
+            "consolidate \"pepewaddress\" N \n"
             "\nConsolidate many UTXOs into one big one, up to 200\n"
             + HelpRequiringPassphrase() +
             "\nArguments:\n"
