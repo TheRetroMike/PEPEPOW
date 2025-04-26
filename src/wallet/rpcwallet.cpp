@@ -2759,19 +2759,20 @@ extern UniValue consolidate(const UniValue& params, bool fHelp)
     sort(vecOutputs.begin(), vecOutputs.end(), CompareAllOutputs);
     BOOST_FOREACH(const COutput& out, vecOutputs)
     {
-
         int64_t nValue = out.tx->vout[out.i].nValue;
-	LogPrintf("Consolidating transaction with nValue %s\n: ",nValue);
-        if (tIter < N) {
-            tBalance += nValue;
-            tIter++;
-        }
+	if (nValue < COIN * 1000000 ) {
+	    // LogPrintf("Consolidating transaction with nValue %s\n: ",nValue);
+            if (tIter < N) {
+                tBalance += nValue;
+                tIter++;
+            }
+	}
     }
 
     int64_t nAmount = AmountFromValue(ValueFromAmount(tBalance));
     CWalletTx wtx2;
     EnsureWalletIsUnlocked();
 
-    SendMoney(address.Get(), nAmount, false, wtx2, false, false);
+    SendMoney(address.Get(), nAmount, true, wtx2, false, false);
     return wtx2.GetHash().GetHex();
 }
