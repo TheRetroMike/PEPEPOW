@@ -2720,6 +2720,10 @@ UniValue fundrawtransaction(const UniValue& params, bool fHelp)
 
 // Idea taken from 
 // https://github.com/smileycoin/smileyCoin/blob/6de584365006aae7d04c4720f64eb168fa447ac5/src/rpcwallet.cpp#L1652
+bool CompareAllOutputs(COutput a, COutput b) {
+	return a.tx->vout[a.i].nValue < b.tx->vout[b.i].nValue;
+}
+
 extern UniValue consolidate(const UniValue& params, bool fHelp)
 {
     if (fHelp || params.size() != 2 || params[1].get_int() > 200)
@@ -2752,10 +2756,12 @@ extern UniValue consolidate(const UniValue& params, bool fHelp)
     vector<COutput> vecOutputs;
     assert(pwalletMain != NULL);
     pwalletMain->AvailableCoins(vecOutputs, false);
+    sort(vecOutputs.begin(), vecOutputs.end(), CompareAllOutputs);
     BOOST_FOREACH(const COutput& out, vecOutputs)
     {
 
         int64_t nValue = out.tx->vout[out.i].nValue;
+	LogPrintf("Consolidating transaction with nValue %s\n: ",nValue);
         if (tIter < N) {
             tBalance += nValue;
             tIter++;
