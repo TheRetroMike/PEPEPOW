@@ -2,6 +2,21 @@
 
 Once you have accumulated 10,000,000 PEPEW you are eligible to become a participant in the network governance - and earn part of the block reward. 
 
+## Tiered Masternode Reward Levels
+
+From PEPEPOW v2.7.X.X onwards SPORK_17 will activate at block height XXXXXXXX (TBD) where tiered levels of Masternode reward are implememented.
+The possible levels of Masteternode Collateral are:
+  *  10,000,000
+  *  25,000,000
+  *  50,000,000
+  *  100,000,000
+
+The frequency with which a Masternode "wins" the reward for any given block is propoprionate to the level of Collateral stake.  So over time a 100M Masternode will receive the block reward ten times for every reward that a 10M Masternode does.
+
+This has been implemented by adding a weighting factor to mnpair.second.GetLastPaidBlock before it is added to vecMasternodeLastPaid in masternodeman.cpp: eg, for a 10M MN:
+ vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock() + (nMnEnabledCount * 10), &mnpair.second));
+
+ 
 ### Linux wallet masternode:
 First, enable port 8833
 ```
