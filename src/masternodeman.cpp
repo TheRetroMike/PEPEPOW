@@ -550,7 +550,7 @@ bool CMasternodeMan::GetNextMasternodeInQueueForPayment(int nBlockHeight, bool f
         if(GetUTXOConfirmations(mnpair.first) < nMnCount) continue;
 
 	// Now with PEPEW 2.7 we must weight the lastPaidBlock against the Collateral Level
-	if (sporkManager.IsSporkActive(SPORK_17_TIERED_MN)) {
+	if (sporkManager.IsSporkActive(SPORK_17_TIERED_MN) || Params().NetworkIDString() == CBaseChainParams::TESTNET ) {
           masternode_info_t mnInfo;
 	  mnInfo = mnpair.second.GetInfo();
 	  // masternode_info_t mnInfo;
@@ -584,8 +584,8 @@ bool CMasternodeMan::GetNextMasternodeInQueueForPayment(int nBlockHeight, bool f
                       LogPrintf("Unhandled GetCollateralAmount RETURN CODE!! for MN %s\n", mnpair.second.addr.ToString());
           }
       } else {
-          LogPrint("masternode","CMasternode::GetNextMasternodeInQueueForPayment %s has LPB of %d\n",  mnpair.second.addr.ToString(), mnpair.second.GetLastPaidBlock());
-          vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock(), &mnpair.second));
+          // LogPrint("masternode","CMasternode::GetNextMasternodeInQueueForPayment %s has LPB of %d\n",  mnpair.second.addr.ToString(), mnpair.second.GetLastPaidBlock());
+          vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock(), &mnpair.second)); // Pre Spork 17 behaviour
       }
     }
     nCountRet = (int)vecMasternodeLastPaid.size();

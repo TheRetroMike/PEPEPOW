@@ -2392,9 +2392,11 @@ void CWallet::AvailableCoins(vector<COutput>& vCoins, bool fOnlyConfirmed, const
 		    bool found50 = false;
 		    bool found100 = false;
                     found10 = pcoin->vout[i].nValue == 10000000*COIN;
-                    found25 = pcoin->vout[i].nValue == 25000000*COIN;
-                    found50 = pcoin->vout[i].nValue == 50000000*COIN;
-                    found100 = pcoin->vout[i].nValue == 100000000*COIN;
+		    if (sporkManager.IsSporkActive(SPORK_17_TIERED_MN) || Params().NetworkIDString() == CBaseChainParams::TESTNET ) {
+                        found25 = pcoin->vout[i].nValue == 25000000*COIN;
+                        found50 = pcoin->vout[i].nValue == 50000000*COIN;
+                        found100 = pcoin->vout[i].nValue == 100000000*COIN;
+		    }
 		    if( found10 || found25 || found50 || found100)
 			    found = true;
                 } else if(nCoinType == ONLY_PRIVATESEND_COLLATERAL) {

@@ -119,14 +119,16 @@ CMasternode::CollateralStatus CMasternode::GetCollateralAmount(const COutPoint& 
     if(coin.out.nValue == 10000000 * COIN ) {
         return COLLATERAL_10M;
     }
-    if(coin.out.nValue == 25000000 * COIN ) {
-        return COLLATERAL_25M;
-    }
-    if(coin.out.nValue == 50000000 * COIN ) {
-        return COLLATERAL_50M;
-    }
-    if(coin.out.nValue == 100000000 * COIN ) {
-        return COLLATERAL_100M;
+    if (sporkManager.IsSporkActive(SPORK_17_TIERED_MN) || Params().NetworkIDString() == CBaseChainParams::TESTNET ) {
+        if(coin.out.nValue == 25000000 * COIN ) {
+            return COLLATERAL_25M;
+        }
+        if(coin.out.nValue == 50000000 * COIN ) {
+            return COLLATERAL_50M;
+        }
+        if(coin.out.nValue == 100000000 * COIN ) {
+            return COLLATERAL_100M;
+        }
     }
 
     return COLLATERAL_INVALID_AMOUNT;
@@ -141,9 +143,15 @@ CMasternode::CollateralStatus CMasternode::CheckCollateral(const COutPoint& outp
         return COLLATERAL_UTXO_NOT_FOUND;
     }
 
-    if(coin.out.nValue != 10000000 * COIN &&  coin.out.nValue != 25000000 * COIN &&  coin.out.nValue != 50000000 * COIN && coin.out.nValue != 100000000 * COIN) {
-        return COLLATERAL_INVALID_AMOUNT;
-    }
+   if (sporkManager.IsSporkActive(SPORK_17_TIERED_MN) || Params().NetworkIDString() == CBaseChainParams::TESTNET ) {
+      if(coin.out.nValue != 10000000 * COIN &&  coin.out.nValue != 25000000 * COIN &&  coin.out.nValue != 50000000 * COIN && coin.out.nValue != 100000000 * COIN) {
+          return COLLATERAL_INVALID_AMOUNT;
+      }
+   } else {
+      if(coin.out.nValue != 10000000 * COIN) {
+          return COLLATERAL_INVALID_AMOUNT;
+      }
+   }
 
     nHeightRet = coin.nHeight;
     return COLLATERAL_OK;
@@ -597,27 +605,29 @@ bool CMasternodeBroadcast::CheckOutpoint(int& nDos)
             return false;
         }
 
-        if (err == COLLATERAL_10M) {
-            LogPrintf("CMasternodeBroadcast::CheckOutpoint -- setting amount to 10M for masternode=%s\n", vin.prevout.ToStringShort());
-	    nCollateralValue = 10000000 * COIN;
-        }
+	if (sporkManager.IsSporkActive(SPORK_17_TIERED_MN) || Params().NetworkIDString() == CBaseChainParams::TESTNET ) {
+            if (err == COLLATERAL_10M) {
+                LogPrintf("CMasternodeBroadcast::CheckOutpoint -- setting amount to 10M for masternode=%s\n", vin.prevout.ToStringShort());
+	        nCollateralValue = 10000000 * COIN;
+            }
 
-        if (err == COLLATERAL_25M) {
-            LogPrintf("CMasternodeBroadcast::CheckOutpoint -- setting amount to 10M for masternode=%s\n", vin.prevout.ToStringShort());
-	    nCollateralValue = 25000000 * COIN;
-        }
+            if (err == COLLATERAL_25M) {
+                LogPrintf("CMasternodeBroadcast::CheckOutpoint -- setting amount to 10M for masternode=%s\n", vin.prevout.ToStringShort());
+	        nCollateralValue = 25000000 * COIN;
+            }
+    
+            if (err == COLLATERAL_50M) {
+                LogPrintf("CMasternodeBroadcast::CheckOutpoint -- setting amount to 50M for masternode=%s\n", vin.prevout.ToStringShort());
+	        nCollateralValue = 50000000 * COIN;
+            }
+    
+            if (err == COLLATERAL_100M) {
+                LogPrintf("CMasternodeBroadcast::CheckOutpoint -- setting amount to 50M for masternode=%s\n", vin.prevout.ToStringShort());
+	        nCollateralValue = 100000000 * COIN;
+            }
+            LogPrintf("CMasternodeBroadcast::CheckOutpoint collateral is %d  for masternode=%s\n", nCollateralValue, vin.prevout.ToStringShort());
+	}
 
-        if (err == COLLATERAL_50M) {
-            LogPrintf("CMasternodeBroadcast::CheckOutpoint -- setting amount to 50M for masternode=%s\n", vin.prevout.ToStringShort());
-	    nCollateralValue = 50000000 * COIN;
-        }
-
-        if (err == COLLATERAL_100M) {
-            LogPrintf("CMasternodeBroadcast::CheckOutpoint -- setting amount to 50M for masternode=%s\n", vin.prevout.ToStringShort());
-	    nCollateralValue = 100000000 * COIN;
-        }
-
-        LogPrintf("CMasternodeBroadcast::CheckOutpoint collateral is %d  for masternode=%s\n", nCollateralValue, vin.prevout.ToStringShort());
         if(chainActive.Height() - nHeight + 1 < Params().GetConsensus().nMasternodeMinimumConfirmations) {
             LogPrintf("CMasternodeBroadcast::CheckOutpoint -- Masternode UTXO must have at least %d confirmations, masternode=%s\n",
                     Params().GetConsensus().nMasternodeMinimumConfirmations, vin.prevout.ToStringShort());
