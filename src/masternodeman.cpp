@@ -559,19 +559,31 @@ bool CMasternodeMan::GetNextMasternodeInQueueForPayment(int nBlockHeight, bool f
 	  CMasternode::CollateralStatus err = CMasternode::GetCollateralAmount(mnInfo.vin.prevout, nCollateralAmount);
           switch(err) {
              case CMasternode::COLLATERAL_10M:
-       		      LogPrint("masternode","CMasternode::GetNextMasternodeInQueueForPayment MN %s is 10M with %d MNs %d -> %d\n",  mnpair.second.addr.ToString(), nMnEnabledCount, mnpair.second.GetLastPaidBlock(), mnpair.second.GetLastPaidBlock() + (nMnEnabledCount * 10));
+		      if(Params().NetworkIDString() == CBaseChainParams::TESTNET)
+       		        LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment MN %s is 10M with %d MNs %d -> %d\n",  mnpair.second.addr.ToString(), nMnEnabledCount, mnpair.second.GetLastPaidBlock(), mnpair.second.GetLastPaidBlock() + (nMnEnabledCount * 10));
+		      else
+       		        LogPrint("masternode","CMasternode::GetNextMasternodeInQueueForPayment MN %s is 10M with %d MNs %d -> %d\n",  mnpair.second.addr.ToString(), nMnEnabledCount, mnpair.second.GetLastPaidBlock(), mnpair.second.GetLastPaidBlock() + (nMnEnabledCount * 10));
                       vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock() + (nMnEnabledCount * 10), &mnpair.second));
                       break;
              case CMasternode::COLLATERAL_25M:
-       		      LogPrint("masternode","CMasternode::GetNextMasternodeInQueueForPayment MN %s is 25M with %d MNs %d -> %d\n",  mnpair.second.addr.ToString(), nMnEnabledCount, mnpair.second.GetLastPaidBlock(), mnpair.second.GetLastPaidBlock() + (nMnEnabledCount * 4));
+		      if(Params().NetworkIDString() == CBaseChainParams::TESTNET)
+       		        LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment MN %s is 25M with %d MNs %d -> %d\n",  mnpair.second.addr.ToString(), nMnEnabledCount, mnpair.second.GetLastPaidBlock(), mnpair.second.GetLastPaidBlock() + (nMnEnabledCount * 4));
+		      else
+       		        LogPrint("masternode","CMasternode::GetNextMasternodeInQueueForPayment MN %s is 25M with %d MNs %d -> %d\n",  mnpair.second.addr.ToString(), nMnEnabledCount, mnpair.second.GetLastPaidBlock(), mnpair.second.GetLastPaidBlock() + (nMnEnabledCount * 4));
                       vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock() + (nMnEnabledCount * 4), &mnpair.second));
                       break;
              case CMasternode::COLLATERAL_50M:
-       		      LogPrint("masternode","CMasternode::GetNextMasternodeInQueueForPayment MN %s is 50M with %d MNs %d -> %d\n",  mnpair.second.addr.ToString(), nMnEnabledCount, mnpair.second.GetLastPaidBlock(), mnpair.second.GetLastPaidBlock() + (nMnEnabledCount * 2));
+		      if(Params().NetworkIDString() == CBaseChainParams::TESTNET)
+       		        LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment MN %s is 50M with %d MNs %d -> %d\n",  mnpair.second.addr.ToString(), nMnEnabledCount, mnpair.second.GetLastPaidBlock(), mnpair.second.GetLastPaidBlock() + (nMnEnabledCount * 2));
+		      else
+       		        LogPrint("masternode","CMasternode::GetNextMasternodeInQueueForPayment MN %s is 50M with %d MNs %d -> %d\n",  mnpair.second.addr.ToString(), nMnEnabledCount, mnpair.second.GetLastPaidBlock(), mnpair.second.GetLastPaidBlock() + (nMnEnabledCount * 2));
                       vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock() + (nMnEnabledCount * 2), &mnpair.second));
                       break;
              case CMasternode::COLLATERAL_100M:
-       		      LogPrint("masternode","CMasternode::GetNextMasternodeInQueueForPayment MN %s is 100M so %d remains\n",  mnpair.second.addr.ToString(), mnpair.second.GetLastPaidBlock());
+		      if(Params().NetworkIDString() == CBaseChainParams::TESTNET)
+       		        LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment MN %s is 100M so %d remains\n",  mnpair.second.addr.ToString(), mnpair.second.GetLastPaidBlock());
+		      else
+       		        LogPrint("masternode","CMasternode::GetNextMasternodeInQueueForPayment MN %s is 100M so %d remains\n",  mnpair.second.addr.ToString(), mnpair.second.GetLastPaidBlock());
                       vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock(), &mnpair.second));
                       break;
              case CMasternode::COLLATERAL_INVALID_AMOUNT:
