@@ -186,6 +186,7 @@ void CMasternode::Check(bool fForce)
         nHeight = chainActive.Height();
     }
 
+    /*
     Coin coin;
     if(!GetUTXOCoin(vin.prevout, coin)) {
         LogPrint("masternode", "CMasternode::Check -- Failed to find Masternode UTXO, masternode=%s\n", vin.prevout.ToStringShort());
@@ -211,6 +212,7 @@ void CMasternode::Check(bool fForce)
 	    default:
 		    nCollateralValue = 0;
     }
+    */
 
 
     if(IsPoSeBanned()) {
