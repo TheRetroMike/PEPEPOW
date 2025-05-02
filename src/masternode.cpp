@@ -186,6 +186,33 @@ void CMasternode::Check(bool fForce)
         nHeight = chainActive.Height();
     }
 
+    Coin coin;
+    if(!GetUTXOCoin(vin.prevout, coin)) {
+        LogPrint("masternode", "CMasternode::Check -- Failed to find Masternode UTXO, masternode=%s\n", vin.prevout.ToStringShort());
+	nCollateralValue = 0;
+    }
+    switch(coin.out.nValue) {
+	    case 10000000*COIN:
+		    nCollateralValue = 10000000*COIN;
+                    LogPrintf("CMasternode::Check -- set nCollateralValue to %d masternode=%s\n", nCollateralValue, vin.prevout.ToStringShort());
+		    break;
+	    case 25000000*COIN:
+		    nCollateralValue = 25000000*COIN;
+                    LogPrintf("CMasternode::Check -- set nCollateralValue to %d masternode=%s\n", nCollateralValue, vin.prevout.ToStringShort());
+		    break;
+	    case 50000000*COIN:
+		    nCollateralValue = 50000000*COIN;
+                    LogPrintf("CMasternode::Check -- set nCollateralValue to %d masternode=%s\n", nCollateralValue, vin.prevout.ToStringShort());
+		    break;
+	    case 100000000*COIN:
+		    nCollateralValue = 100000000*COIN;
+                    LogPrintf("CMasternode::Check -- set nCollateralValue to %d masternode=%s\n", nCollateralValue, vin.prevout.ToStringShort());
+		    break;
+	    default:
+		    nCollateralValue = 0;
+    }
+
+
     if(IsPoSeBanned()) {
         if(nHeight < nPoSeBanHeight + 720 ) return; // too early? <-- Yes almost certainly.  Add in 2.2.1.4 to make this last MUCH longer
         // Otherwise give it a chance to proceed further to do all the usual checks and to change its state.
