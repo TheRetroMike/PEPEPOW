@@ -2,8 +2,8 @@ FROM ubuntu:20.04
 RUN apt-get update -y
 RUN apt-get install wget build-essential -y
 WORKDIR /opt/
-RUN wget https://github.com/MattF42/PePe-core/releases/download/v2.6.3.2/PEPEPOW-v2.6.3.2-9b85415-release-x86_64-linux-gnu.tgz
-RUN tar zxvf PEPEPOW-v2.6.3.2-9b85415-release-x86_64-linux-gnu.tgz
+RUN wget https://github.com/MattF42/PePe-core/releases/download/v2.7.1.6/PEPEPOW-v2.7.1.6-996a351-release-x86_64-linux-gnu.tgz
+RUN tar zxvf PEPEPOW-v2.7.1.6-996a351-release-x86_64-linux-gnu.tgz
 RUN mv PEPEPOWd /usr/bin/
 RUN mv PEPEPOW-cli /usr/bin/
 RUN rm PEPEPOW*
