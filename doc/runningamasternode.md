@@ -2,28 +2,43 @@
 
 Once you have accumulated 10,000,000 PEPEW you are eligible to become a participant in the network governance - and earn part of the block reward. 
 
+## Tiered Masternode Reward Levels
+
+From PEPEPOW v2.7.X.X onwards SPORK_17 will activate at block height XXXXXXXX (TBD) where tiered levels of Masternode reward are implememented.
+The possible levels of Masteternode Collateral are:
+  *  10,000,000
+  *  25,000,000
+  *  50,000,000
+  *  100,000,000
+
+The frequency with which a Masternode "wins" the reward for any given block is propoprionate to the level of Collateral stake.  So over time a 100M Masternode will receive the block reward ten times for every reward that a 10M Masternode does.
+
+This has been implemented by adding a weighting factor to mnpair.second.GetLastPaidBlock before it is added to vecMasternodeLastPaid in masternodeman.cpp: eg, for a 10M MN:
+ vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock() + (nMnEnabledCount * 10), &mnpair.second));
+
+ 
 ### Linux wallet masternode:
 First, enable port 8833
 ```
 sudo ufw allow 8833/tcp
 ```
 
-To download the latest wallet version (2.6.3.2) and unpack it from a ubuntu command line terminal, use the following
+To download the latest wallet version (2.7.1.6) and unpack it from a ubuntu command line terminal, use the following
 ```
-mkdir pepew2632 &&
-sudo chmod +x -R pepew2632 &&
-cd pepew2632 &&
-wget -c https://github.com/MattF42/PePe-core/releases/download/v2.6.3.2/PEPEPOW-v2.6.3.2-b837f88-release-x86_64-linux-gnu.tgz -O - | tar -xz &&
+mkdir pepew2716 &&
+sudo chmod +x -R pepew2716 &&
+cd pepew2716 &&
+wget -c https://github.com/MattF42/PePe-core/releases/download/v2.7.1.6/PEPEPOW-v2.7.1.6-996a351-release-x86_64-linux-gnu.tgz -O - | tar -xz &&
 cd &&
-sudo chmod +x -R pepew2632 &&
-cd pepew2632
+sudo chmod +x -R pepew2716 &&
+cd pepew2716
 ```
 
 #### **1) Create a new wallet and transfer an exact total of 10,000,000 PEPEW!**
 *(Note: It has to be 10M no more or less! You must also wait for the Block confirmation to be greater than 15)*
 You may use the GUI to receive your coins, but then you need to run the "PEPEWd" before proceeding. You can do so in the terminal with the following command
 ```
-~/pepew2632/PEPEPOWd
+~/pepew2716/PEPEPOWd
 ```
 
 #### **2) Synchronize the block chain**
@@ -31,18 +46,18 @@ You may use the GUI to receive your coins, but then you need to run the "PEPEWd"
 
 Before you can start your node, your daemon must be fully synced. To check how many blocks you already have you can use 
 ```
-~/pepew2632/PEPEPOW-cli getblockcount
+~/pepew2716/PEPEPOW-cli getblockcount
 ```
 
 When you are fully updated you can confirm your balance is exactly 10,000,000 by running the following command
 ```
-~/pepew2632/PEPEPOW-cli getbalance
+~/pepew2716/PEPEPOW-cli getbalance
 ```
 
 Once you have done that, you are ready to get your genkey which will be used to setup your masternode.
 ```
-~/pepew2632/PEPEPOW-cli masternode outputs &&
-~/pepew2632/PEPEPOW-cli masternode genkey
+~/pepew2716/PEPEPOW-cli masternode outputs &&
+~/pepew2716/PEPEPOW-cli masternode genkey
 ```
 
 #### **3) Open the PEPEPOW.conf file and write to it:**
@@ -82,10 +97,10 @@ sudo reboot
 
 #### **6) Start master node:**
 ```
-~/pepew2632/PEPEPOW-cli masternode start-all
+~/pepew2716/PEPEPOW-cli masternode start-all
 ```
 
 #### **7) Check Status**
 ```
-~/pepew2632/PEPEPOW-cli masternode status
+~/pepew2716/PEPEPOW-cli masternode status
 ```

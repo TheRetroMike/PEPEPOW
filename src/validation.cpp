@@ -3376,14 +3376,14 @@ bool CheckBlock(const CBlock& block, CValidationState& state, bool fCheckPOW, bo
             if (tx.IsCoinBase() && WalletStartupScan == false) {
 	    /* Transplanted from CheckTransaction - Foztor Dec 24 */
 	       // LogPrintf("WalletStartupScan is: %s", WalletStartupScan ? "true" : "false");
-               LogPrintf("CheckBlock(PEPEW): Checking Founders Inputs at height %d\n", chainActive.Height());
+               // LogPrintf("CheckBlock(PEPEW): Checking Founders Inputs at height %d\n", chainActive.Height());
 	       if(Params().NetworkIDString() == CBaseChainParams::REGTEST) { // Always test Foundation input on Regtest networks
 		     if (!CheckFoundersInputs(tx, state, chainActive.Height())){
                          return false; } // Returning True is a bad idea (TM)
 	       } else {
 	         if (sporkManager.IsSporkActive(SPORK_15_REQUIRE_FOUNDATION_FEE)) {
                    if (!CheckFoundersInputs(tx, state, chainActive.Height())){
-                    LogPrintf("CheckBlock(PEPEW): BAD FOUNDERS INPUT\n");
+                    LogPrintf("CheckBlock(PEPEW): BAD FOUNDERS INPUT at height %d\n", chainActive.Height());
                     return false; }
                  } 
 	       }

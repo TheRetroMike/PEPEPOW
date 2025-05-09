@@ -115,6 +115,7 @@ struct masternode_info_t
     CService addr{};
     CPubKey pubKeyCollateralAddress{};
     CPubKey pubKeyMasternode{};
+    CAmount nCollateralValue{};
     int64_t nTimeLastWatchdogVote = 0;
 
     int64_t nLastDsq = 0; //the dsq count from the last dsq broadcast of this node
@@ -149,7 +150,11 @@ public:
     enum CollateralStatus {
         COLLATERAL_OK,
         COLLATERAL_UTXO_NOT_FOUND,
-        COLLATERAL_INVALID_AMOUNT
+        COLLATERAL_INVALID_AMOUNT,
+	COLLATERAL_10M,
+	COLLATERAL_25M,
+	COLLATERAL_50M,
+	COLLATERAL_100M
     };
 
 
@@ -158,6 +163,7 @@ public:
 
     uint256 nCollateralMinConfBlockHash{};
     int nBlockLastPaid{};
+    CAmount nCollateralValue{};
     int nPoSeBanScore{};
     int nPoSeBanHeight{};
     bool fAllowMixingTx{};
@@ -190,6 +196,7 @@ public:
         READWRITE(nActiveState);
         READWRITE(nCollateralMinConfBlockHash);
         READWRITE(nBlockLastPaid);
+        READWRITE(nCollateralValue);
         READWRITE(nProtocolVersion);
         READWRITE(nPoSeBanScore);
         READWRITE(nPoSeBanHeight);
@@ -205,6 +212,7 @@ public:
 
     static CollateralStatus CheckCollateral(const COutPoint& outpoint);
     static CollateralStatus CheckCollateral(const COutPoint& outpoint, int& nHeightRet);
+    static CollateralStatus GetCollateralAmount(const COutPoint& outpoint, int& nAmountRet);
     void Check(bool fForce = false);
 
     bool IsBroadcastedWithin(int nSeconds) { return GetAdjustedTime() - sigTime < nSeconds; }
@@ -268,6 +276,7 @@ public:
     std::string GetStatus() const;
 
     int GetLastPaidTime() { return nTimeLastPaid; }
+    int GetCollateralAmount() { return nCollateralValue; }
     int GetLastPaidBlock() { return nBlockLastPaid; }
     void UpdateLastPaid(const CBlockIndex *pindex, int nMaxBlocksToScanBack);
 
@@ -287,6 +296,7 @@ public:
         vchSig = from.vchSig;
         nCollateralMinConfBlockHash = from.nCollateralMinConfBlockHash;
         nBlockLastPaid = from.nBlockLastPaid;
+        nCollateralValue = from.nCollateralValue;
         nPoSeBanScore = from.nPoSeBanScore;
         nPoSeBanHeight = from.nPoSeBanHeight;
         fAllowMixingTx = from.fAllowMixingTx;

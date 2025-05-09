@@ -266,6 +266,7 @@ public:
         consensus.BIP34Hash = uint256S("0x0000047d24635e347be3aaaeb66c26be94901a2f962feccd4f95090191f208c1");
         // consensus.powLimit = uint256S("00fffff000000000000000000000000000000000000000000000000000000000");
         consensus.powLimit = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
+        consensus.powLimit2 = uint256S("7fffffffffffffffffffffffffffffffffffffffffffffffffffffffffffffff");
         consensus.nPowTargetTimespan = 24 * 60 * 60; // PEPEPOW: 1 day
         consensus.nPowTargetSpacing = 2.5 * 60; // PEPEPOW: 2.5 minutes
         consensus.fPowAllowMinDifficultyBlocks = true;

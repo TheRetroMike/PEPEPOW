@@ -591,10 +591,14 @@ bool CMasternodeBlockPayees::IsTransactionValid(const CTransaction& txNew)
     }
 
     // if we don't have at least MNPAYMENTS_SIGNATURES_REQUIRED signatures on a payee, approve whichever is the longest chain
+
+    if(Params().NetworkIDString() == CBaseChainParams::TESTNET) {
+       if(nMaxSignatures < MNPAYMENTS_SIGNATURES_REQUIRED_TESTNET) return true;
+    }
     if(nMaxSignatures < MNPAYMENTS_SIGNATURES_REQUIRED) return true;
 
     BOOST_FOREACH(CMasternodePayee& payee, vecPayees) {
-        if (payee.GetVoteCount() >= MNPAYMENTS_SIGNATURES_REQUIRED) {
+        if (payee.GetVoteCount() >= MNPAYMENTS_SIGNATURES_REQUIRED || ( Params().NetworkIDString() == CBaseChainParams::TESTNET && payee.GetVoteCount() >= MNPAYMENTS_SIGNATURES_REQUIRED_TESTNET)) {
              LogPrint("mnpayments", "CMasternodeBlockPayees::IsTransactionValid -- Found %d votes \n", payee.GetVoteCount());
              BOOST_FOREACH(CTxOut txout, txNew.vout) {
                 CTxDestination address1;
@@ -733,20 +737,38 @@ bool CMasternodePaymentVote::IsValid(CNode* pnode, int nValidationHeight, std::s
         return false;
     }
 
-    if(nRank > MNPAYMENTS_SIGNATURES_TOTAL) {
-        // It's common to have masternodes mistakenly think they are in the top 10
-        // We don't want to print all of these messages in normal mode, debug mode should print though
-        strError = strprintf("Masternode is not in the top %d (%d)", MNPAYMENTS_SIGNATURES_TOTAL, nRank);
-        // Only ban for new mnw which is out of bounds, for old mnw MN list itself might be way too much off
-        if(nRank > MNPAYMENTS_SIGNATURES_TOTAL*2 && nBlockHeight > nValidationHeight) {
-            strError = strprintf("Masternode is not in the top %d (%d)", MNPAYMENTS_SIGNATURES_TOTAL*2, nRank);
-            LogPrintf("CMasternodePaymentVote::IsValid -- Error: %s\n", strError);
-           // This seems too draconian, and more importantly is causing partioning : Foztor 20th August 2023
-	   // Re-instated but reduced penatly from 20 to 2 24th August 2023 Foztor
-           Misbehaving(pnode->GetId(), 2);
-        }
-        // Still invalid however
-        return false;
+    if(Params().NetworkIDString() == CBaseChainParams::TESTNET) {
+      if(nRank > MNPAYMENTS_SIGNATURES_TOTAL_TESTNET) {
+          // It's common to have masternodes mistakenly think they are in the top 10
+          // We don't want to print all of these messages in normal mode, debug mode should print though
+          strError = strprintf("Masternode is not in the top %d (%d)", MNPAYMENTS_SIGNATURES_TOTAL_TESTNET, nRank);
+          // Only ban for new mnw which is out of bounds, for old mnw MN list itself might be way too much off
+          if(nRank > MNPAYMENTS_SIGNATURES_TOTAL*2 && nBlockHeight > nValidationHeight) {
+              strError = strprintf("Masternode is not in the top %d (%d)", MNPAYMENTS_SIGNATURES_TOTAL_TESTNET*2, nRank);
+              LogPrintf("CMasternodePaymentVote::IsValid -- Error: %s\n", strError);
+             // This seems too draconian, and more importantly is causing partioning : Foztor 20th August 2023
+	     // Re-instated but reduced penatly from 20 to 2 24th August 2023 Foztor
+             Misbehaving(pnode->GetId(), 2);
+          }
+          // Still invalid however
+          return false;
+      }
+    } else {
+      if(nRank > MNPAYMENTS_SIGNATURES_TOTAL) {
+          // It's common to have masternodes mistakenly think they are in the top 10
+          // We don't want to print all of these messages in normal mode, debug mode should print though
+          strError = strprintf("Masternode is not in the top %d (%d)", MNPAYMENTS_SIGNATURES_TOTAL, nRank);
+          // Only ban for new mnw which is out of bounds, for old mnw MN list itself might be way too much off
+          if(nRank > MNPAYMENTS_SIGNATURES_TOTAL*2 && nBlockHeight > nValidationHeight) {
+              strError = strprintf("Masternode is not in the top %d (%d)", MNPAYMENTS_SIGNATURES_TOTAL*2, nRank);
+              LogPrintf("CMasternodePaymentVote::IsValid -- Error: %s\n", strError);
+             // This seems too draconian, and more importantly is causing partioning : Foztor 20th August 2023
+	     // Re-instated but reduced penatly from 20 to 2 24th August 2023 Foztor
+             Misbehaving(pnode->GetId(), 2);
+          }
+          // Still invalid however
+          return false;
+      }
     }
 
     return true;
@@ -770,10 +792,18 @@ bool CMasternodePayments::ProcessBlock(int nBlockHeight, CConnman& connman)
         return false;
     }
 
-    if (nRank > MNPAYMENTS_SIGNATURES_TOTAL) {
-	LogPrintf("CMasternodePayments::ProcessBlock -- NoVote: rank=%d, nBlockHeight=%d, masternode=%s\n", nRank, nBlockHeight, activeMasternode.outpoint.ToStringShort());
-        LogPrint("mnpayments", "CMasternodePayments::ProcessBlock -- Masternode not in the top %d (%d)\n", MNPAYMENTS_SIGNATURES_TOTAL, nRank);
-        return false;
+    if(Params().NetworkIDString() == CBaseChainParams::TESTNET) {
+      if (nRank > MNPAYMENTS_SIGNATURES_TOTAL_TESTNET) {
+	  LogPrintf("CMasternodePayments::ProcessBlock -- NoVote: rank=%d, nBlockHeight=%d, masternode=%s\n", nRank, nBlockHeight, activeMasternode.outpoint.ToStringShort());
+          LogPrint("mnpayments", "CMasternodePayments::ProcessBlock -- Masternode not in the top %d (%d)\n", MNPAYMENTS_SIGNATURES_TOTAL_TESTNET, nRank);
+          return false;
+      }
+    } else {
+      if (nRank > MNPAYMENTS_SIGNATURES_TOTAL) {
+	  LogPrintf("CMasternodePayments::ProcessBlock -- NoVote: rank=%d, nBlockHeight=%d, masternode=%s\n", nRank, nBlockHeight, activeMasternode.outpoint.ToStringShort());
+          LogPrint("mnpayments", "CMasternodePayments::ProcessBlock -- Masternode not in the top %d (%d)\n", MNPAYMENTS_SIGNATURES_TOTAL, nRank);
+          return false;
+      }
     }
 
 
@@ -835,7 +865,12 @@ void CMasternodePayments::CheckPreviousBlockVotes(int nPrevBlockHeight)
 
     LOCK2(cs_mapMasternodeBlocks, cs_mapMasternodePaymentVotes);
 
-    for (int i = 0; i < MNPAYMENTS_SIGNATURES_TOTAL && i < (int)mns.size(); i++) {
+    int MN_ST = MNPAYMENTS_SIGNATURES_TOTAL;
+    if(Params().NetworkIDString() == CBaseChainParams::TESTNET) {
+	    MN_ST = MNPAYMENTS_SIGNATURES_TOTAL_TESTNET;
+    }
+
+    for (int i = 0; i < MN_ST && i < (int)mns.size(); i++) {
         auto mn = mns[i];
         CScript payee;
         bool found = false;
@@ -987,19 +1022,34 @@ void CMasternodePayments::RequestLowDataPaymentBlocks(CNode* pnode, CConnman& co
         int nTotalVotes = 0;
         bool fFound = false;
         BOOST_FOREACH(CMasternodePayee& payee, it->second.vecPayees) {
-            if(payee.GetVoteCount() >= MNPAYMENTS_SIGNATURES_REQUIRED) {
-                fFound = true;
-                break;
-            }
-            nTotalVotes += payee.GetVoteCount();
+       	    if(Params().NetworkIDString() == CBaseChainParams::TESTNET) {
+              if(payee.GetVoteCount() >= MNPAYMENTS_SIGNATURES_REQUIRED_TESTNET) {
+                  fFound = true;
+                  break;
+              }
+              nTotalVotes += payee.GetVoteCount();
+	    } else {
+              if(payee.GetVoteCount() >= MNPAYMENTS_SIGNATURES_REQUIRED) {
+                  fFound = true;
+                  break;
+              }
+	    }
         }
         // A clear winner (MNPAYMENTS_SIGNATURES_REQUIRED+ votes) was found
         // or no clear winner was found but there are at least avg number of votes
-        if(fFound || nTotalVotes >= (MNPAYMENTS_SIGNATURES_TOTAL + MNPAYMENTS_SIGNATURES_REQUIRED)/2) {
-            // so just move to the next block
-            ++it;
-            continue;
-        }
+       	if(Params().NetworkIDString() == CBaseChainParams::TESTNET) {
+          if(fFound || nTotalVotes >= (MNPAYMENTS_SIGNATURES_TOTAL_TESTNET + MNPAYMENTS_SIGNATURES_REQUIRED_TESTNET)/2) {
+              // so just move to the next block
+              ++it;
+              continue;
+          }
+	} else {
+          if(fFound || nTotalVotes >= (MNPAYMENTS_SIGNATURES_TOTAL + MNPAYMENTS_SIGNATURES_REQUIRED)/2) {
+              // so just move to the next block
+              ++it;
+              continue;
+          }
+	}
         // DEBUG
         DBG (
             // Let's see why this failed
@@ -1045,9 +1095,15 @@ std::string CMasternodePayments::ToString() const
 
 bool CMasternodePayments::IsEnoughData()
 {
-    float nAverageVotes = (MNPAYMENTS_SIGNATURES_TOTAL + MNPAYMENTS_SIGNATURES_REQUIRED) / 2;
-    int nStorageLimit = GetStorageLimit();
-    return GetBlockCount() > nStorageLimit && GetVoteCount() > nStorageLimit * nAverageVotes;
+    if(Params().NetworkIDString() == CBaseChainParams::TESTNET) {
+      float nAverageVotes = (MNPAYMENTS_SIGNATURES_TOTAL_TESTNET + MNPAYMENTS_SIGNATURES_REQUIRED_TESTNET) / 2;
+      int nStorageLimit = GetStorageLimit();
+      return GetBlockCount() > nStorageLimit && GetVoteCount() > nStorageLimit * nAverageVotes;
+    } else {
+      float nAverageVotes = (MNPAYMENTS_SIGNATURES_TOTAL + MNPAYMENTS_SIGNATURES_REQUIRED) / 2;
+      int nStorageLimit = GetStorageLimit();
+      return GetBlockCount() > nStorageLimit && GetVoteCount() > nStorageLimit * nAverageVotes;
+    }
 }
 
 int CMasternodePayments::GetStorageLimit()
