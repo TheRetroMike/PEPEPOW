@@ -581,10 +581,10 @@ bool CMasternodeMan::GetNextMasternodeInQueueForPayment(int nBlockHeight, bool f
                       break;
              case CMasternode::COLLATERAL_100M:
 		      if(Params().NetworkIDString() == CBaseChainParams::TESTNET)
-       		        LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment MN %s is 100M so %d remains\n",  mnpair.second.addr.ToString(), mnpair.second.GetLastPaidBlock());
+       		        LogPrintf("CMasternode::GetNextMasternodeInQueueForPayment MN %s is 100M so %d -> %d\n",  mnpair.second.addr.ToString(), mnpair.second.GetLastPaidBlock(), mnpair.second.GetLastPaidBlock() + nMnEnabledCount);
 		      else
-       		        LogPrint("masternode","CMasternode::GetNextMasternodeInQueueForPayment MN %s is 100M so %d remains\n",  mnpair.second.addr.ToString(), mnpair.second.GetLastPaidBlock());
-                      vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock(), &mnpair.second));
+       		        LogPrint("masternode","CMasternode::GetNextMasternodeInQueueForPayment MN %s is 100M so %d -> %d\n",  mnpair.second.addr.ToString(), mnpair.second.GetLastPaidBlock(), mnpair.second.GetLastPaidBlock() + nMnEnabledCount );
+                      vecMasternodeLastPaid.push_back(std::make_pair(mnpair.second.GetLastPaidBlock() + nMnEnabledCount, &mnpair.second));
                       break;
              case CMasternode::COLLATERAL_INVALID_AMOUNT:
                       LogPrint("masternode","Masternode with INVALID Collateral amount found!\n");
