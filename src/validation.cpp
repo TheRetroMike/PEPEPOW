@@ -552,8 +552,8 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
 }
 
 bool CheckFoundersInputs(const CTransaction &tx, CValidationState &state, int nHeight){
-	 if( nHeight < 1070290) { // Bad things happened with SPORK_15, so we skip blocks before this height when we stalled
-		 return true;
+	 if( nHeight < 3068449) { // Waste of effort to check old blocks...
+		 return true; // There is probably a better way to idenfity this
 	        }
 
 	 // if (WalletStartupScan) {
@@ -599,7 +599,29 @@ bool CheckFoundersInputs(const CTransaction &tx, CValidationState &state, int nH
     static const char* jinew[] = {
 	            "PCwVHWuFMFDNGN86m86bkXhBwZoCNxbFvt",
     };
+
+    // Optimise the MAINNET case
+    //
+    if(Params().NetworkIDString() == CBaseChainParams::MAIN)
+    { 
+        CScript FOUNDER_1_SCRIPT = GetScriptForDestination(CBitcoinAddress(jijin[0]).Get());
+        CAmount foundAmount = 250.0; // See Off By One Error Above  Over-ride this seems to cause forks.  Why, who knows 
+        BOOST_FOREACH(const CTxOut &output, tx.vout)
+        {
+            if (output.scriptPubKey == FOUNDER_1_SCRIPT && output.nValue >= foundAmount) // Superblocks will be bigger
+            {
+	        // LogPrintf("FOUND CORRECT FOUNDATION PAYMENT at height=%i\n", nHeight+1);
+                found_1 = true;
+	        found_2 = true;
+		return true;
+               // continue;
+            }
+        }
+	  LogPrintf("FOUND MISSING FOUNDATION PAYMENT at height=%i\n", nHeight+1);
+          return state.DoS(100, false, REJECT_FOUNDER_REWARD_MISSING,"CTransaction::CheckTransaction() : founders reward missing");
+    }
     
+    // Now deal with Regtest/Testnet where it does not have to be optimal
     CScript FOUNDER_1_SCRIPT = GetScriptForDestination(CBitcoinAddress(jijin[0]).Get());
     CScript FOUNDER_2_SCRIPT = GetScriptForDestination(CBitcoinAddress(jinew[0]).Get());
     CScript FOUNDER_3_SCRIPT = GetScriptForDestination(CBitcoinAddress(jijinT[0]).Get());
