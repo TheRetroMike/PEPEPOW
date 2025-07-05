@@ -1732,18 +1732,22 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-outofrange");
 
 	// SPORK 21
-	FreezeSporkData freezeData = GetCurrentFreezeSpork();
-	if (freezeData.valid) {
-    	for (const CTxIn& in : tx.vin) {
-        	CTxOut prevOut = view.GetOutputFor(in);
-        	std::string addr;
-        	if (ExtractAddress(prevOut.scriptPubKey, addr)) { // Use your existing address extraction utility
-            	if (freezeData.blacklist.count(addr)) {
-                		return state.DoS(100, error("Attempted to spend UTXO from frozen address %s", addr), REJECT_INVALID, "utxo-frozen");
-            	}
-        	}
-    	}
-     }	
+FreezeSporkData freezeData = GetCurrentFreezeSpork();
+if (freezeData.valid) {
+    for (const CTxIn& in : tx.vin) {
+        const Coin& coin = inputs.AccessCoin(in.prevout);
+        const CTxOut& prevOut = coin.out;
+        CTxDestination dest;
+        if (ExtractDestination(prevOut.scriptPubKey, dest)) {
+            CBitcoinAddress addr(dest);
+            std::string addrStr = addr.ToString();
+            if (freezeData.blacklist.count(addrStr)) {
+                return state.DoS(100, error("Attempted to spend UTXO from frozen address %s", addrStr),
+                                 REJECT_INVALID, "utxo-frozen");
+            }
+        }
+    }
+}
     return true;
 }
 }// namespace Consensus
