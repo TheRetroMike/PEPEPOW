@@ -43,3 +43,5 @@ inline FreezeSporkData ParseFreezeSpork(const std::string& value, int64_t now) {
     return data;
 }
 
+
+FreezeSporkData GetCurrentFreezeSpork(); // Prototype - function is in validation.cpp

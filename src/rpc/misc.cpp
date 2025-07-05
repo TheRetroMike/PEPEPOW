@@ -225,6 +225,7 @@ public:
 */
 UniValue spork(const UniValue& params, bool fHelp)
 {
+	/*
     if(params.size() == 1 && params[0].get_str() == "show"){
         UniValue ret(UniValue::VOBJ);
         for(int nSporkID = SPORK_START; nSporkID <= SPORK_END; nSporkID++){
@@ -232,7 +233,23 @@ UniValue spork(const UniValue& params, bool fHelp)
                 ret.push_back(Pair(sporkManager.GetSporkNameByID(nSporkID), sporkManager.GetSporkValue(nSporkID)));
         }
         return ret;
-    } else if(params.size() == 1 && params[0].get_str() == "active"){
+    } 
+    */
+    
+    if(params.size() == 1 && params[0].get_str() == "show"){
+    UniValue ret(UniValue::VOBJ);
+    for(int nSporkID = SPORK_START; nSporkID <= SPORK_END; nSporkID++){
+        if(sporkManager.GetSporkNameByID(nSporkID) != "Unknown") {
+            std::string strVal;
+            if (sporkManager.GetSporkValueString(nSporkID, strVal) && !strVal.empty()) {
+                ret.push_back(Pair(sporkManager.GetSporkNameByID(nSporkID), strVal));
+            } else {
+                ret.push_back(Pair(sporkManager.GetSporkNameByID(nSporkID), sporkManager.GetSporkValue(nSporkID)));
+            }
+        }
+    }
+    return ret;
+} else if(params.size() == 1 && params[0].get_str() == "active"){
         UniValue ret(UniValue::VOBJ);
         for(int nSporkID = SPORK_START; nSporkID <= SPORK_END; nSporkID++){
             if(sporkManager.GetSporkNameByID(nSporkID) != "Unknown")

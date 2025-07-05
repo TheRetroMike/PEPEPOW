@@ -31,6 +31,7 @@
 #include "keepass.h"
 #include "privatesend-client.h"
 #include "spork.h"
+#include "spork_freeze_utils.h"
 
 #include <assert.h>
 
@@ -3292,6 +3293,26 @@ bool CWallet::CreateTransaction(const vector<CRecipient>& vecSend, CWalletTx& wt
 
                     return false;
                 }
+
+		// === SPORK 21: Blacklist enforcement in wallet ===
+FreezeSporkData freezeData = GetCurrentFreezeSpork();
+if (freezeData.valid) {
+    for (const auto& pcoin : setCoins) {
+        const CWalletTx* wtx = pcoin.first;
+        unsigned int nOut = pcoin.second;
+        const CTxOut& prevOut = wtx->vout[nOut];
+        CTxDestination dest;
+        if (ExtractDestination(prevOut.scriptPubKey, dest)) {
+            CBitcoinAddress addr(dest);
+            std::string addrStr = addr.ToString();
+            if (freezeData.blacklist.count(addrStr)) {
+                strFailReason = strprintf("Attempt to spend from frozen address: %s (blacklisted by spork)", addrStr);
+                return false;
+            }
+        }
+    }
+}
+// ================================================
                 if (fUseInstantSend && nValueIn > sporkManager.GetSporkValue(SPORK_5_INSTANTSEND_MAX_VALUE)*COIN) {
                     strFailReason += " " + strprintf(_("InstantSend doesn't support sending values that high yet. Transactions are currently limited to %1 PEPEW."), sporkManager.GetSporkValue(SPORK_5_INSTANTSEND_MAX_VALUE));
                     return false;
