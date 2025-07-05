@@ -115,24 +115,24 @@ FreezeSporkData GetCurrentFreezeSpork()
 {
     std::string sporkVal;
     if (!sporkManager.GetSporkValueString(SPORK_21_FREEZE_BLACKLIST, sporkVal)) {
-        LogPrintf("SPORK21: No spork value found for SPORK_21_FREEZE_BLACKLIST\n");
+        // LogPrintf("SPORK21: No spork value found for SPORK_21_FREEZE_BLACKLIST\n");
         return {};
     }
     int64_t now = GetTime();
     FreezeSporkData data = ParseFreezeSpork(sporkVal, now);
 
     LogPrintf("SPORK21: Raw spork string: %s\n", sporkVal);
-    LogPrintf("SPORK21: Parsed blacklist size: %d\n", static_cast<int>(data.blacklist.size()));
+    // LogPrintf("SPORK21: Parsed blacklist size: %d\n", static_cast<int>(data.blacklist.size()));
     if (!data.blacklist.empty()) {
         for (const auto& a : data.blacklist) {
-            LogPrintf("SPORK21: Blacklist entry: %s\n", a);
+            // LogPrintf("SPORK21: Blacklist entry: %s\n", a);
         }
     }
     LogPrintf("SPORK21: Expires at: %lld (now: %lld) | Valid: %d\n", data.expires, now, data.valid ? 1 : 0);
 
     if (data.expires > 0 && now > data.expires)
         data.valid = false;
-    LogPrintf("SPORK21: Post-expiry valid: %d\n", data.valid ? 1 : 0);
+    // LogPrintf("SPORK21: Post-expiry valid: %d\n", data.valid ? 1 : 0);
     return data;
 }
 
@@ -1745,22 +1745,30 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-outofrange");
 
 	// SPORK 21
-FreezeSporkData freezeData = GetCurrentFreezeSpork();
-if (freezeData.valid) {
-    for (const CTxIn& in : tx.vin) {
-        const Coin& coin = inputs.AccessCoin(in.prevout);
-        const CTxOut& prevOut = coin.out;
-        CTxDestination dest;
-        if (ExtractDestination(prevOut.scriptPubKey, dest)) {
-            CBitcoinAddress addr(dest);
-            std::string addrStr = addr.ToString();
-            if (freezeData.blacklist.count(addrStr)) {
-                return state.DoS(100, error("Attempted to spend UTXO from frozen address %s", addrStr),
-                                 REJECT_INVALID, "utxo-frozen");
-            }
-        }
-    }
-}
+	// === SPORK 21: Blacklist enforcement in consensus (validation) ===
+	FreezeSporkData freezeData = GetCurrentFreezeSpork();
+	if (freezeData.valid) {
+    	LogPrintf("SPORK21 [consensus]: Blacklist active, %d entries, expires %lld\n", static_cast<int>(freezeData.blacklist.size()), freezeData.expires);
+    	for (const CTxIn& txin : tx.vin) {
+        	Coin coin;
+        	if (!view.GetCoin(txin.prevout, coin)) {
+            	// Usual missing input handling
+            	continue;
+        	}
+        	const CTxOut& prevOut = coin.out;
+        	std::string scriptHex = HexStr(prevOut.scriptPubKey.begin(), prevOut.scriptPubKey.end());
+        	LogPrintf("SPORK21 [consensus]: Checking input scriptPubKey: %s\n", scriptHex.c_str());
+        	if (freezeData.blacklist.count(scriptHex)) {
+            	LogPrintf("SPORK21 [consensus]: BLOCKED tx spending blacklisted scriptPubKey: %s\n", scriptHex.c_str());
+            	return state.DoS(100, error("Attempt to spend from blacklisted scriptPubKey (spork): %s", scriptHex),
+                             	REJECT_INVALID, "blacklisted-input");
+        	}
+    	}
+    	LogPrintf("SPORK21 [consensus]: No blacklisted inputs found, transaction allowed to proceed.\n");
+	} else {
+    	// LogPrintf("SPORK21 [consensus]: No valid blacklist active, proceeding as normal.\n");
+	}
+
     return true;
 }
 }// namespace Consensus
