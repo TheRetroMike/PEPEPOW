@@ -52,6 +52,8 @@
 
 #include <wallet/walletdb.h>
 
+#include "spork_freeze_utils.h"
+
 using namespace std;
 
 #if defined(NDEBUG)
@@ -106,10 +108,26 @@ map<uint256, int64_t> mapRejectedBlocks GUARDED_BY(cs_main);
 static bool IsSuperMajority(int minVersion, const CBlockIndex* pstart, unsigned nRequired, const Consensus::Params& consensusParams);
 static void CheckBlockIndex(const Consensus::Params& consensusParams);
 
+
+/** SPORK 21 Stuff
+ * */
+FreezeSporkData GetCurrentFreezeSpork()
+{
+    std::string sporkVal;
+    if (!sporkManager.GetSporkValueString(SPORK_21_FREEZE_BLACKLIST, sporkVal)) return {};
+    int64_t now = GetTime();
+    FreezeSporkData data = ParseFreezeSpork(sporkVal, now);
+
+    if (data.expires > 0 && now > data.expires)
+        data.valid = false;
+    return data;
+}
+
 /** Constant stuff for coinbase transactions we create: */
 CScript COINBASE_FLAGS;
 
 const string strMessageMagic = "DarkCoin Signed Message:\n";
+
 
 // Internal stuff
 namespace {
@@ -1712,6 +1730,20 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
         nFees += nTxFee;
         if (!MoneyRange(nFees))
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-outofrange");
+
+	// SPORK 21
+	FreezeSporkData freezeData = GetCurrentFreezeSpork();
+	if (freezeData.valid) {
+    	for (const CTxIn& in : tx.vin) {
+        	CTxOut prevOut = view.GetOutputFor(in);
+        	std::string addr;
+        	if (ExtractAddress(prevOut.scriptPubKey, addr)) { // Use your existing address extraction utility
+            	if (freezeData.blacklist.count(addr)) {
+                		return state.DoS(100, error("Attempted to spend UTXO from frozen address %s", addr), REJECT_INVALID, "utxo-frozen");
+            	}
+        	}
+    	}
+     }	
     return true;
 }
 }// namespace Consensus

@@ -138,6 +138,7 @@ bool CSporkManager::IsSporkActive(int nSporkID)
             case SPORK_16_XELISV2:		            r = SPORK_16_XELISV2_DEFAULT; break;
             case SPORK_17_TIERED_MN:		            r = SPORK_17_TIERED_MN_DEFAULT;  break;
             case SPORK_18_AUTOSPORK:		            r = SPORK_18_AUTOSPORK_DEFAULT;  break;
+            case SPORK_21_FREEZE_BLACKLIST:	            r = SPORK_21_FREEZE_BLACKLIST_DEFAULT;  break;
             default:
                 LogPrint("spork", "CSporkManager::IsSporkActive -- Unknown Spork ID %d\n", nSporkID);
                 r = 4070908800ULL; // 2099-1-1 i.e. off by default
@@ -168,6 +169,7 @@ int64_t CSporkManager::GetSporkValue(int nSporkID)
         case SPORK_16_XELISV2:			        return SPORK_16_XELISV2_DEFAULT;
         case SPORK_17_TIERED_MN:		        return SPORK_17_TIERED_MN_DEFAULT;
         case SPORK_18_AUTOSPORK:		        return SPORK_18_AUTOSPORK_DEFAULT;
+        case SPORK_21_FREEZE_BLACKLIST:		        return SPORK_21_FREEZE_BLACKLIST_DEFAULT;
         default:
             LogPrint("spork", "CSporkManager::GetSporkValue -- Unknown Spork ID %d\n", nSporkID);
             return -1;
@@ -190,6 +192,7 @@ int CSporkManager::GetSporkIDByName(std::string strName)
     if (strName == "SPORK_16_XELISV2") 			        return SPORK_16_XELISV2;
     if (strName == "SPORK_17_TIERED_MN") 		        return SPORK_17_TIERED_MN;
     if (strName == "SPORK_18_AUTOSPORK") 		        return SPORK_18_AUTOSPORK;
+    if (strName == "SPORK_21_FREEZE_BLACKLIST") 		return SPORK_21_FREEZE_BLACKLIST;
 
     LogPrint("spork", "CSporkManager::GetSporkIDByName -- Unknown Spork name '%s'\n", strName);
     return -1;
@@ -211,6 +214,7 @@ std::string CSporkManager::GetSporkNameByID(int nSporkID)
         case SPORK_16_XELISV2:			        return "SPORK_16_XELISV2_DEFAULT_DEFAULT";
         case SPORK_17_TIERED_MN:		        return "SPORK_17_TIERED_MN_DEFAULT";
         case SPORK_18_AUTOSPORK:		        return "SPORK_18_AUTOSPORK_DEFAULT";
+        case SPORK_21_FREEZE_BLACKLIST:		        return "SPORK_21_FREEZE_BLACKLIST_DEFAULT";
         default:
             LogPrint("spork", "CSporkManager::GetSporkNameByID -- Unknown Spork ID %d\n", nSporkID);
             return "Unknown";
