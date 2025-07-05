@@ -137,7 +137,7 @@ bool CSporkManager::IsSporkActive(int nSporkID)
             case SPORK_15_REQUIRE_FOUNDATION_FEE:           r = SPORK_15_REQUIRE_FOUNDATION_FEE_DEFAULT; break;
             case SPORK_16_XELISV2:		            r = SPORK_16_XELISV2_DEFAULT; break;
             case SPORK_17_TIERED_MN:		            r = SPORK_17_TIERED_MN_DEFAULT;  break;
-            case SPORK_18_AUTOSPORK:		            r = SPORK_18_AUTOSPORK_MN_DEFAULT;  break;
+            case SPORK_18_AUTOSPORK:		            r = SPORK_18_AUTOSPORK_DEFAULT;  break;
             default:
                 LogPrint("spork", "CSporkManager::IsSporkActive -- Unknown Spork ID %d\n", nSporkID);
                 r = 4070908800ULL; // 2099-1-1 i.e. off by default
