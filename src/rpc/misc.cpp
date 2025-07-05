@@ -250,6 +250,18 @@ UniValue spork(const UniValue& params, bool fHelp)
         if (!g_connman)
             throw JSONRPCError(RPC_CLIENT_P2P_DISABLED, "Error: Peer-to-peer functionality missing or disabled");
 
+	// If this is the freeze/blacklist spork, allow string payload
+        if (nSporkID == SPORK_21_FREEZE_BLACKLIST) {
+            std::string sValue = params[1].get_str();
+            if (sporkManager.UpdateSpork(nSporkID, sValue, *g_connman)) {
+                // Optionally, you can call ExecuteSpork or similar, if needed
+                return "success";
+            } else {
+                return "failure";
+            }
+        }
+
+
         // SPORK VALUE
         int64_t nValue = params[1].get_int64();
 
