@@ -9,8 +9,7 @@
 #include "net.h"
 #include "utilstrencodings.h"
 
-class CSporkMessage;
-class CSporkManager;
+#include <string>
 
 /*
     Don't ever reuse these IDs for other sporks
@@ -37,7 +36,7 @@ static const int SPORK_21_FREEZE_BLACKLIST 				= 10021;
 static const int64_t SPORK_2_INSTANTSEND_ENABLED_DEFAULT                = 0;            // ON
 static const int64_t SPORK_3_INSTANTSEND_BLOCK_FILTERING_DEFAULT        = 0;            // ON
 static const int64_t SPORK_5_INSTANTSEND_MAX_VALUE_DEFAULT              = 1000;         // 1000 PEPEW
-static const int64_t SPORK_8_MASTERNODE_PAYMENT_ENFORCEMENT_DEFAULT     = 1710183624;           // 11th March 2024 19:00 UTC  - now superblock logic is fixed
+static const int64_t SPORK_8_MASTERNODE_PAYMENT_ENFORCEMENT_DEFAULT     = 1710183624;   // 11th March 2024 19:00 UTC  - now superblock logic is fixed
 static const int64_t SPORK_9_SUPERBLOCKS_ENABLED_DEFAULT                = 4070908800ULL;// OFF
 static const int64_t SPORK_10_MASTERNODE_PAY_UPDATED_NODES_DEFAULT      = 4070908800ULL;// OFF
 static const int64_t SPORK_12_RECONSIDER_BLOCKS_DEFAULT                 = 0;            // 0 BLOCKS
@@ -46,12 +45,11 @@ static const int64_t SPORK_14_REQUIRE_SENTINEL_FLAG_DEFAULT             = 407090
 static const int64_t SPORK_15_REQUIRE_FOUNDATION_FEE_DEFAULT            = 1706814000ULL;// 1st Feb 2024 19:00 UTC
 static const int64_t SPORK_16_XELISV2_DEFAULT 			        = 1724905600ULL;// Thursday, 29 August 2024 04:26:40
 static const int64_t SPORK_17_TIERED_MN_DEFAULT 		        = 1747418400ULL;// Friday, 16 May 2025 18:00 UTC
-static const int64_t SPORK_18_AUTOSPORK_DEFAULT        		        = 1751911200ULL;// Monday, 7 July 2025 18:00:00
-static const int64_t SPORK_21_FREEZE_BLACKLIST_DEFAULT   	        = 1751911200ULL;// Monday, 7 July 2025 18:00:00
+static const int64_t SPORK_18_AUTOSPORK_DEFAULT       		        = 1751911200ULL;// Monday, 7 July 2025 18:00:00
+static const int64_t SPORK_21_FREEZE_BLACKLIST_DEFAULT  	        = 1751911200ULL;// Monday, 7 July 2025 18:00:00
 
-extern std::map<uint256, CSporkMessage> mapSporks;
-extern CSporkManager sporkManager;
-
+extern std::map<uint256, class CSporkMessage> mapSporks;
+extern class CSporkManager sporkManager;
 //
 // Spork classes
 // Keep track of all of the network spork settings
@@ -66,19 +64,29 @@ public:
     int nSporkID;
     int64_t nValue;
     int64_t nTimeSigned;
+    std::string sValue; // New: string spork payload
 
     CSporkMessage(int nSporkID, int64_t nValue, int64_t nTimeSigned) :
         nSporkID(nSporkID),
         nValue(nValue),
-        nTimeSigned(nTimeSigned)
+        nTimeSigned(nTimeSigned),
+        sValue("")
+        {}
+
+    // New constructor for string payloads
+    CSporkMessage(int nSporkID, const std::string& sValue, int64_t nTimeSigned) :
+        nSporkID(nSporkID),
+        nValue(0),
+        nTimeSigned(nTimeSigned),
+        sValue(sValue)
         {}
 
     CSporkMessage() :
         nSporkID(0),
         nValue(0),
-        nTimeSigned(0)
+        nTimeSigned(0),
+        sValue("")
         {}
-
 
     ADD_SERIALIZE_METHODS;
 
@@ -88,6 +96,7 @@ public:
         READWRITE(nValue);
         READWRITE(nTimeSigned);
         READWRITE(vchSig);
+        READWRITE(sValue);
     }
 
     uint256 GetHash() const
@@ -96,14 +105,16 @@ public:
         ss << nSporkID;
         ss << nValue;
         ss << nTimeSigned;
+        ss << sValue;
         return ss.GetHash();
     }
 
     bool Sign(std::string strSignKey);
     bool CheckSignature();
     void Relay(CConnman& connman);
-};
 
+    std::string GetStringValue() const { return sValue; }
+};
 
 class CSporkManager
 {
@@ -118,10 +129,19 @@ public:
 
     void ProcessSpork(CNode* pfrom, std::string& strCommand, CDataStream& vRecv, CConnman& connman);
     void ExecuteSpork(int nSporkID, int nValue);
-    bool UpdateSpork(int nSporkID, int64_t nValue, CConnman& connman);
 
+    // Integer spork interface (legacy/backward compatible)
+    bool UpdateSpork(int nSporkID, int64_t nValue, CConnman& connman);
     bool IsSporkActive(int nSporkID);
     int64_t GetSporkValue(int nSporkID);
+
+    // String spork interface (new)
+    bool UpdateSpork(int nSporkID, const std::string& sValue, CConnman& connman); // NEW
+    bool GetSporkStringValue(int nSporkID, std::string& sValueRet); // NEW
+
+    // Unified getter for string/int (string preferred, falls back to int)
+    bool GetSporkValueString(int nSporkID, std::string& sRet); // NEW
+
     int GetSporkIDByName(std::string strName);
     std::string GetSporkNameByID(int nSporkID);
 
@@ -129,3 +149,4 @@ public:
 };
 
 #endif
+
