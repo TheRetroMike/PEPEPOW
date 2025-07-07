@@ -45,8 +45,8 @@ static const int64_t SPORK_14_REQUIRE_SENTINEL_FLAG_DEFAULT             = 407090
 static const int64_t SPORK_15_REQUIRE_FOUNDATION_FEE_DEFAULT            = 1706814000ULL;// 1st Feb 2024 19:00 UTC
 static const int64_t SPORK_16_XELISV2_DEFAULT 			        = 1724905600ULL;// Thursday, 29 August 2024 04:26:40
 static const int64_t SPORK_17_TIERED_MN_DEFAULT 		        = 1747418400ULL;// Friday, 16 May 2025 18:00 UTC
-static const int64_t SPORK_18_AUTOSPORK_DEFAULT       		        = 1751911200ULL;// Monday, 7 July 2025 18:00:00
-static const int64_t SPORK_21_FREEZE_BLACKLIST_DEFAULT  	        = 1751911200ULL;// Monday, 7 July 2025 18:00:00
+static const int64_t SPORK_18_AUTOSPORK_DEFAULT       		        = 1752516000ULL;// Monday, July 14, 2025 18:00:00  GMT
+static const int64_t SPORK_21_FREEZE_BLACKLIST_DEFAULT  	        = 1752516000ULL;// Monday, July 14, 2025 18:00:00  GMT
 
 extern std::map<uint256, class CSporkMessage> mapSporks;
 extern class CSporkManager sporkManager;

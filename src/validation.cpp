@@ -1751,7 +1751,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
     	LogPrintf("SPORK21 [consensus]: Blacklist active, %d entries, expires %lld\n", static_cast<int>(freezeData.blacklist.size()), freezeData.expires);
     	for (const CTxIn& txin : tx.vin) {
         	Coin coin;
-        	if (!view.GetCoin(txin.prevout, coin)) {
+        	if (!inputs.GetCoin(txin.prevout, coin)) {
             	// Usual missing input handling
             	continue;
         	}
