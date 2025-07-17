@@ -111,31 +111,6 @@ static void CheckBlockIndex(const Consensus::Params& consensusParams);
 
 /** SPORK 21 Stuff
  * */
-FreezeSporkData GetCurrentFreezeSpork()
-{
-    std::string sporkVal;
-    if (!sporkManager.GetSporkValueString(SPORK_21_FREEZE_BLACKLIST, sporkVal)) {
-        // LogPrintf("SPORK21: No spork value found for SPORK_21_FREEZE_BLACKLIST\n");
-        return {};
-    }
-    int64_t now = GetTime();
-    FreezeSporkData data = ParseFreezeSpork(sporkVal, now);
-
-    LogPrintf("SPORK21: Raw spork string: %s\n", sporkVal);
-    // LogPrintf("SPORK21: Parsed blacklist size: %d\n", static_cast<int>(data.blacklist.size()));
-    if (!data.blacklist.empty()) {
-        for (const auto& a : data.blacklist) {
-            // LogPrintf("SPORK21: Blacklist entry: %s\n", a);
-        }
-    }
-    LogPrintf("SPORK21: Expires at: %lld (now: %lld) | Valid: %d\n", data.expires, now, data.valid ? 1 : 0);
-
-    if (data.expires > 0 && now > data.expires)
-        data.valid = false;
-    // LogPrintf("SPORK21: Post-expiry valid: %d\n", data.valid ? 1 : 0);
-    return data;
-}
-
 
 FreezeSporkData GetCurrentFreezeSpork()
 {
