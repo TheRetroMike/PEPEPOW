@@ -136,6 +136,29 @@ FreezeSporkData GetCurrentFreezeSpork()
     return data;
 }
 
+
+FreezeSporkData GetCurrentFreezeSpork()
+{
+    std::string sporkVal;
+    if (!sporkManager.GetSporkValueString(SPORK_21_FREEZE_BLACKLIST, sporkVal)) {
+        return {};
+    }
+    int64_t now = GetTime();
+    FreezeSporkData data = ParseFreezeSpork(sporkVal, now);
+
+    LogPrintf("SPORK21: Raw spork string: %s\n", sporkVal);
+
+    if (data.expires > 0 && now > data.expires)
+        data.valid = false;
+    if (data.start > 0 && now < data.start)
+        data.valid = false;
+
+    LogPrintf("SPORK21: Starts at: %lld | Expires at: %lld (now: %lld) | Valid: %d\n",
+        data.start, data.expires, now, data.valid ? 1 : 0);
+
+    return data;
+}
+
 /** Constant stuff for coinbase transactions we create: */
 CScript COINBASE_FLAGS;
 
