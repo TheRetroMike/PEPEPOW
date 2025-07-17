@@ -1747,7 +1747,7 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
 	// SPORK 21
 	// === SPORK 21: Blacklist enforcement in consensus (validation) ===
 	FreezeSporkData freezeData = GetCurrentFreezeSpork();
-	if (freezeData.valid) {
+	if (freezeData.valid && !IsInitialBlockDownload()) {
     	LogPrintf("SPORK21 [consensus]: Blacklist active, %d entries, expires %lld\n", static_cast<int>(freezeData.blacklist.size()), freezeData.expires);
     	for (const CTxIn& txin : tx.vin) {
         	Coin coin;
