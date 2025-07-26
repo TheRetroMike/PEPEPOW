@@ -52,6 +52,8 @@
 
 #include <wallet/walletdb.h>
 
+#include "spork_freeze_utils.h"
+
 using namespace std;
 
 #if defined(NDEBUG)
@@ -106,10 +108,37 @@ map<uint256, int64_t> mapRejectedBlocks GUARDED_BY(cs_main);
 static bool IsSuperMajority(int minVersion, const CBlockIndex* pstart, unsigned nRequired, const Consensus::Params& consensusParams);
 static void CheckBlockIndex(const Consensus::Params& consensusParams);
 
+
+/** SPORK 21 Stuff
+ * */
+
+FreezeSporkData GetCurrentFreezeSpork()
+{
+    std::string sporkVal;
+    if (!sporkManager.GetSporkValueString(SPORK_21_FREEZE_BLACKLIST, sporkVal)) {
+        return {};
+    }
+    int64_t now = GetTime();
+    FreezeSporkData data = ParseFreezeSpork(sporkVal, now);
+
+    LogPrintf("SPORK21: Raw spork string: %s\n", sporkVal);
+
+    if (data.expires > 0 && now > data.expires)
+        data.valid = false;
+    if (data.start > 0 && now < data.start)
+        data.valid = false;
+
+    LogPrintf("SPORK21: Starts at: %lld | Expires at: %lld (now: %lld) | Valid: %d\n",
+        data.start, data.expires, now, data.valid ? 1 : 0);
+
+    return data;
+}
+
 /** Constant stuff for coinbase transactions we create: */
 CScript COINBASE_FLAGS;
 
 const string strMessageMagic = "DarkCoin Signed Message:\n";
+
 
 // Internal stuff
 namespace {
@@ -552,8 +581,8 @@ bool CheckTransaction(const CTransaction& tx, CValidationState &state)
 }
 
 bool CheckFoundersInputs(const CTransaction &tx, CValidationState &state, int nHeight){
-	 if( nHeight < 1070290) { // Bad things happened with SPORK_15, so we skip blocks before this height when we stalled
-		 return true;
+	 if( nHeight < 3068449) { // Waste of effort to check old blocks...
+		 return true; // There is probably a better way to idenfity this
 	        }
 
 	 // if (WalletStartupScan) {
@@ -599,7 +628,29 @@ bool CheckFoundersInputs(const CTransaction &tx, CValidationState &state, int nH
     static const char* jinew[] = {
 	            "PCwVHWuFMFDNGN86m86bkXhBwZoCNxbFvt",
     };
+
+    // Optimise the MAINNET case
+    //
+    if(Params().NetworkIDString() == CBaseChainParams::MAIN)
+    { 
+        CScript FOUNDER_1_SCRIPT = GetScriptForDestination(CBitcoinAddress(jijin[0]).Get());
+        CAmount foundAmount = 250.0; // See Off By One Error Above  Over-ride this seems to cause forks.  Why, who knows 
+        BOOST_FOREACH(const CTxOut &output, tx.vout)
+        {
+            if (output.scriptPubKey == FOUNDER_1_SCRIPT && output.nValue >= foundAmount) // Superblocks will be bigger
+            {
+	        // LogPrintf("FOUND CORRECT FOUNDATION PAYMENT at height=%i\n", nHeight+1);
+                found_1 = true;
+	        found_2 = true;
+		return true;
+               // continue;
+            }
+        }
+	  LogPrintf("FOUND MISSING FOUNDATION PAYMENT at height=%i\n", nHeight+1);
+          return state.DoS(100, false, REJECT_FOUNDER_REWARD_MISSING,"CTransaction::CheckTransaction() : founders reward missing");
+    }
     
+    // Now deal with Regtest/Testnet where it does not have to be optimal
     CScript FOUNDER_1_SCRIPT = GetScriptForDestination(CBitcoinAddress(jijin[0]).Get());
     CScript FOUNDER_2_SCRIPT = GetScriptForDestination(CBitcoinAddress(jinew[0]).Get());
     CScript FOUNDER_3_SCRIPT = GetScriptForDestination(CBitcoinAddress(jijinT[0]).Get());
@@ -1690,6 +1741,32 @@ bool CheckTxInputs(const CTransaction& tx, CValidationState& state, const CCoins
         nFees += nTxFee;
         if (!MoneyRange(nFees))
             return state.DoS(100, false, REJECT_INVALID, "bad-txns-fee-outofrange");
+
+	// SPORK 21
+	// === SPORK 21: Blacklist enforcement in consensus (validation) ===
+	FreezeSporkData freezeData = GetCurrentFreezeSpork();
+	if (freezeData.valid && !IsInitialBlockDownload()) {
+    	LogPrintf("SPORK21 [consensus]: Blacklist active, %d entries, expires %lld\n", static_cast<int>(freezeData.blacklist.size()), freezeData.expires);
+    	for (const CTxIn& txin : tx.vin) {
+        	Coin coin;
+        	if (!inputs.GetCoin(txin.prevout, coin)) {
+            	// Usual missing input handling
+            	continue;
+        	}
+        	const CTxOut& prevOut = coin.out;
+        	std::string scriptHex = HexStr(prevOut.scriptPubKey.begin(), prevOut.scriptPubKey.end());
+        	LogPrintf("SPORK21 [consensus]: Checking input scriptPubKey: %s\n", scriptHex.c_str());
+        	if (freezeData.blacklist.count(scriptHex)) {
+            	LogPrintf("SPORK21 [consensus]: BLOCKED tx spending blacklisted scriptPubKey: %s\n", scriptHex.c_str());
+            	return state.DoS(100, error("Attempt to spend from blacklisted scriptPubKey (spork): %s", scriptHex),
+                             	REJECT_INVALID, "blacklisted-input");
+        	}
+    	}
+    	LogPrintf("SPORK21 [consensus]: No blacklisted inputs found, transaction allowed to proceed.\n");
+	} else {
+    	// LogPrintf("SPORK21 [consensus]: No valid blacklist active, proceeding as normal.\n");
+	}
+
     return true;
 }
 }// namespace Consensus

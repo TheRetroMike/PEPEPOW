@@ -1148,11 +1148,11 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
             return false;
         }
 
-        if (sporkManager.IsSporkActive( SPORK_17_TIERED_MN  )) {
-            if (nVersion < MIN_PEER_SPORK_17)
+        if (sporkManager.IsSporkActive( SPORK_18_AUTOSPORK  )) {
+            if (nVersion < MIN_PEER_SPORK_18)
               {
                 // disconnect from peers older than this proto version
-               LogPrintf("peer=%d using obsolete version %i; disconnecting\n", pfrom->id, nVersion);
+               LogPrintf("peer=%d using pre SPORK_18 version %i; disconnecting\n", pfrom->id, nVersion);
                connman.PushMessageWithVersion(pfrom, INIT_PROTO_VERSION, NetMsgType::REJECT, strCommand, REJECT_OBSOLETE,
                                strprintf("Version must be %d or greater", MIN_PEER_PROTO_VERSION));
                pfrom->fDisconnect = true;
@@ -1160,54 +1160,8 @@ bool static ProcessMessage(CNode* pfrom, string strCommand, CDataStream& vRecv, 
              } 
         }
 
-        if (nVersion < MIN_PEER_PROTO_VERSION)
-        {
-            // disconnect from peers older than this proto version
-            LogPrintf("peer=%d using obsolete version %i; disconnecting\n", pfrom->id, nVersion);
-            connman.PushMessageWithVersion(pfrom, INIT_PROTO_VERSION, NetMsgType::REJECT, strCommand, REJECT_OBSOLETE,
-                               strprintf("Version must be %d or greater", MIN_PEER_PROTO_VERSION));
-            pfrom->fDisconnect = true;
-            return false;
-        }
 
-        if (sporkManager.IsSporkActive(SPORK_15_REQUIRE_FOUNDATION_FEE)) {
-            if (nVersion < MIN_PEER_SPORK_15)
-              {
-                // disconnect from peers older than this proto version
-               LogPrintf("peer=%d using obsolete version %i; disconnecting\n", pfrom->id, nVersion);
-               connman.PushMessageWithVersion(pfrom, INIT_PROTO_VERSION, NetMsgType::REJECT, strCommand, REJECT_OBSOLETE,
-                               strprintf("Version must be %d or greater", MIN_PEER_PROTO_VERSION));
-               pfrom->fDisconnect = true;
-               return false;
-             } 
-        }
 
-        if (sporkManager.IsSporkActive(SPORK_16_XELISV2 )) {
-            if (nVersion < MIN_PEER_SPORK_16)
-              {
-                // disconnect from peers older than this proto version
-               LogPrintf("peer=%d using obsolete version %i; disconnecting\n", pfrom->id, nVersion);
-               connman.PushMessageWithVersion(pfrom, INIT_PROTO_VERSION, NetMsgType::REJECT, strCommand, REJECT_OBSOLETE,
-                               strprintf("Version must be %d or greater", MIN_PEER_PROTO_VERSION));
-               pfrom->fDisconnect = true;
-               return false;
-             } 
-        }
-
-        /* Given that SPORK 8 activated after Spork 15, we want to get rid of the peers that can't get past block 1070288 */
-
-        if (sporkManager.IsSporkActive(SPORK_8_MASTERNODE_PAYMENT_ENFORCEMENT_DEFAULT )) { 
-           if (nVersion < MIN_PEER_SPORK_15_POST_1070280)
-            {
-                 // disconnect from peers older than this proto version
-               LogPrintf("peer=%d using obsolete version %i; disconnecting\n", pfrom->id, nVersion);
-               connman.PushMessageWithVersion(pfrom, INIT_PROTO_VERSION, NetMsgType::REJECT, strCommand, REJECT_OBSOLETE,
-                               strprintf("Version must be %d or greater", MIN_PEER_PROTO_VERSION));
-               pfrom->fDisconnect = true;
-               return false;
-            }
-        }
-         
 
         if (nVersion == 10300)
             nVersion = 300;
@@ -2678,7 +2632,7 @@ bool SendMessages(CNode* pto, CConnman& connman, std::atomic<bool>& interruptMsg
         // Check for headers sync timeouts
         if (state.fSyncStarted && state.nHeadersSyncTimeout < std::numeric_limits<int64_t>::max()) {
             // Detect whether this is a stalling initial-headers-sync peer
-            if (pindexBestHeader->GetBlockTime() <= GetAdjustedTime() - 6*60*60) { // was 24*60*60 in bitcoin
+            if (pindexBestHeader->GetBlockTime() <= GetAdjustedTime() - 24*60*60) { // was 24*60*60 in bitcoin
                 if (nNow > state.nHeadersSyncTimeout && nSyncStarted == 1 && (nPreferredDownload - state.fPreferredDownload >= 1)) {
                     // Disconnect a (non-whitelisted) peer if it is our only sync peer,
                     // and we have others we could be using instead.
